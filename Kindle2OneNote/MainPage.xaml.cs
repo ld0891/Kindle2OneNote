@@ -26,5 +26,45 @@ namespace Kindle2OneNote
         {
             this.InitializeComponent();
         }
+
+        private void notebookList_Loaded(object sender, RoutedEventArgs e)
+        {
+            List<string> data = new List<string>();
+            data.Add("Book");
+            data.Add("Computer");
+            data.Add("Chair");
+            data.Add("Mug");
+
+            var comboBox = sender as ComboBox;
+            comboBox.ItemsSource = data;
+            comboBox.PlaceholderText = "Choose the notebook";
+        }
+
+        private void notebookList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            // ... Set SelectedItem as Window Title.
+            string value = comboBox.SelectedItem as string;
+        }
+
+        private void sectionList_Loaded(object sender, RoutedEventArgs e)
+        {
+            List<string> data = new List<string>();
+            data.Add("Book");
+            data.Add("Computer");
+            data.Add("Chair");
+            data.Add("Mug");
+            
+            var comboBox = sender as ComboBox;
+            comboBox.ItemsSource = data;
+            comboBox.PlaceholderText = "Choose the section";
+        }
+
+        private void sectionList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            // ... Set SelectedItem as Window Title.
+            string value = comboBox.SelectedItem as string;
+        }
     }
 }
