@@ -25,6 +25,9 @@ namespace Kindle2OneNote
         public MainPage()
         {
             this.InitializeComponent();
+
+            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 640);
+            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
         private void notebookList_Loaded(object sender, RoutedEventArgs e)

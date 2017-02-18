@@ -8,7 +8,7 @@
     mc:Ignorable="d" Height="1034.144" Width="658.741">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <ComboBox x:Name="sectionList" HorizontalAlignment="Left" Height="80" Margin="123,279,0,0" VerticalAlignment="Top" Width="460" Loaded="sectionList_Loaded" SelectionChanged="sectionList_SelectionChanged"/>
-        <ComboBox x:Name="notebookList" HorizontalAlignment="Left" Height="80" Margin="123,128,0,0" VerticalAlignment="Top" Width="460" Loaded="notebookList_Loaded" SelectionChanged="notebookList_SelectionChanged"/>
+        <ComboBox x:Name="sectionList" HorizontalAlignment="Left" Height="50" Margin="80,220,0,0" VerticalAlignment="Top" Width="360" Loaded="sectionList_Loaded" SelectionChanged="sectionList_SelectionChanged"/>
+        <ComboBox x:Name="notebookList" HorizontalAlignment="Left" Height="50" Margin="80,128,0,0" VerticalAlignment="Top" Width="360" Loaded="notebookList_Loaded" SelectionChanged="notebookList_SelectionChanged"/>
     </Grid>
 </Page>
