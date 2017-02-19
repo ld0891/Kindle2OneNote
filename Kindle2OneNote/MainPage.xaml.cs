@@ -48,10 +48,9 @@ namespace Kindle2OneNote
             }
             */
 
-            
-            var msaAuthProvider = 
-                new myAuthProvider(@"S-1-15-2-2567924935-2306869593-2567945573-2612480561-1466786951-829521335-2919498358", "https://login.live.com/oauth20_desktop.srf", { "onedrive.readonly", "wl.signin" });
-            await msaAuthProvider.AuthenticateUserAsync();
+            string[] scopes = new string[1] { "office.onenote" };
+            var msaAuthenticationProvider = new OnlineIdAuthenticationProvider(scopes);
+            await msaAuthenticationProvider.AuthenticateUserAsync();
 
             var comboBox = sender as ComboBox;
             comboBox.PlaceholderText = "File exists";
