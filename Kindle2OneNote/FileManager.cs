@@ -46,7 +46,6 @@ namespace Kindle2OneNote
                 FutureAccessList.AddOrReplace("PickedFolderToken", folder);
             }
             */
-            return true;
         }
 
         public string ReadFileContent()

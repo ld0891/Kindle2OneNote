@@ -95,8 +95,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ClippingFileParser.cs" />
-    <Compile Include="KindleManager.cs" />
+    <Compile Include="ClippingParser.cs" />
+    <Compile Include="FileManager.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

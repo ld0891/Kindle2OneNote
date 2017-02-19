@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Kindle2OneNote
 {
@@ -15,7 +16,13 @@ namespace Kindle2OneNote
         public uint LocationFrom;
         public uint LocationTo;
         public DateTime AddTime;
-        public string content;
+        public string Content;
+    }
+
+    public static class Constants
+    {
+        public const string pattern = 
+            @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
     }
 
     public sealed class ClippingParser
@@ -44,40 +51,25 @@ namespace Kindle2OneNote
 
         public List<Clipping> Parse(string fileContent)
         {
-            /*
-            string[] clippingSeparator = { "==========" };
-            string[] contentSeparator = { "\r\n\r\n" };
-            string text = await Windows.Storage.FileIO.ReadTextAsync(file);
-            string[] clippingTexts = text.Split(clippingSeparator, StringSplitOptions.RemoveEmptyEntries);
-
-            string[] clippings;
-            string metaInfo;
-            string highlight;
-            string pat = @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)";
-            Regex regex = new Regex(pat);
-
-            foreach (string content in clippingTexts)
-            {
-                clippings = content.Split(contentSeparator, StringSplitOptions.RemoveEmptyEntries);
-                metaInfo = clippings[0];
-                highlight = clippings[1];
-
-                Match match = regex.Match(content);
-                if (!match.Success)
-                {
-                    return;
-                }
-
-                string title = match.Groups["title"].Value;
-                string author = match.Groups["author"].Value;
-                uint page = Convert.ToUInt32(match.Groups["page"].Value);
-                uint locationFrom = Convert.ToUInt32(match.Groups["from"].Value);
-                uint locationTo = Convert.ToUInt32(match.Groups["to"].Value);
-                DateTime date = DateTime.Parse(match.Groups["time"].Value);
-            }
-            */
-
+            Clipping clip;
+            Regex regex = new Regex(Constants.pattern);
+            Match match = regex.Match(fileContent);
             List<Clipping> clippings = new List<Clipping>();
+
+            while (match.Success)
+            {
+                clip.Title = match.Groups["title"].Value;
+                clip.Author = match.Groups["author"].Value;
+                clip.Page = Convert.ToUInt32(match.Groups["page"].Value);
+                clip.LocationFrom = Convert.ToUInt32(match.Groups["from"].Value);
+                clip.LocationTo = Convert.ToUInt32(match.Groups["to"].Value);
+                clip.AddTime = DateTime.Parse(match.Groups["time"].Value);
+                clip.Content = match.Groups["content"].Value;
+                clippings.Add(clip);
+
+                match = match.NextMatch();
+            }
+
             return clippings;
         }
     }
