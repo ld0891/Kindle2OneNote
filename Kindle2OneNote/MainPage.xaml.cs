@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
+using Microsoft.OneDrive.Sdk;
+
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace Kindle2OneNote
@@ -32,7 +34,10 @@ namespace Kindle2OneNote
 
         private async void notebookList_Loaded(object sender, RoutedEventArgs e)
         {
-            /*
+            /*           
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+            folderPicker.FileTypeFilter.Add("*");
             Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
             {
@@ -43,12 +48,10 @@ namespace Kindle2OneNote
             }
             */
 
-            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
-            folderPicker.FileTypeFilter.Add("*");
-
-            Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             
+            var msaAuthProvider = 
+                new myAuthProvider(@"S-1-15-2-2567924935-2306869593-2567945573-2612480561-1466786951-829521335-2919498358", "https://login.live.com/oauth20_desktop.srf", { "onedrive.readonly", "wl.signin" });
+            await msaAuthProvider.AuthenticateUserAsync();
 
             var comboBox = sender as ComboBox;
             comboBox.PlaceholderText = "File exists";
