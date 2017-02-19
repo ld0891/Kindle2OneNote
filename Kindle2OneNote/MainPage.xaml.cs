@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
+using System.Text.RegularExpressions;
+
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace Kindle2OneNote
@@ -32,15 +34,9 @@ namespace Kindle2OneNote
 
         private void notebookList_Loaded(object sender, RoutedEventArgs e)
         {
-            List<string> data = new List<string>();
-            data.Add("Book");
-            data.Add("Computer");
-            data.Add("Chair");
-            data.Add("Mug");
-
             var comboBox = sender as ComboBox;
-            comboBox.ItemsSource = data;
-            comboBox.PlaceholderText = "Choose the notebook";
+            comboBox.PlaceholderText = "File exists";
+            return;
         }
 
         private void notebookList_SelectionChanged(object sender, SelectionChangedEventArgs e)
