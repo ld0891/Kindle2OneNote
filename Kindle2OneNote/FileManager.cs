@@ -65,24 +65,16 @@ namespace Kindle2OneNote
             return true;
         }
 
-        public string ReadFileContent()
+        public async Task<string> ReadFileContent(string filePath)
         {
-            return "";
-        }
+            if (!await FileExists(filePath))
+            {
+                return "";
+            }
 
-        private bool KindleConnected()
-        {
-            return true;
-        }
-
-        private bool ClippingsExist()
-        {
-            return true;
-        }
-        
-        private string ClippingsFilePath()
-        {
-            return "";
+            Windows.Storage.StorageFile file = await Windows.Storage.StorageFile.GetFileFromPathAsync(filePath);
+            string content = await Windows.Storage.FileIO.ReadTextAsync(file);
+            return content;
         }
 
         private async Task<bool> FileExists(string filePath)
@@ -96,13 +88,6 @@ namespace Kindle2OneNote
             {
                 return false;
             }
-        }
-
-        private async Task<string> ReadFile(string filePath)
-        {
-            Windows.Storage.StorageFile file = await Windows.Storage.StorageFile.GetFileFromPathAsync(filePath);
-            string content = await Windows.Storage.FileIO.ReadTextAsync(file);
-            return content;
         }
     }
 }
