@@ -30,22 +30,39 @@ namespace Kindle2OneNote
             }
         }
 
-        public void BackupClippings()
+        public async Task<bool> MoveFileToFolder(string filePath, string folderPath)
         {
-            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
-            folderPicker.FileTypeFilter.Add("*");
-
-            /*
-            Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            Windows.Storage.StorageFile file;
+            Windows.Storage.StorageFolder folder;
+            try
             {
-                // Application now has read/write access to all contents in the picked folder
-                // (including other sub-folder contents)
-                Windows.Storage.AccessCache.StorageApplicationPermissions.
-                FutureAccessList.AddOrReplace("PickedFolderToken", folder);
+                Task<Windows.Storage.StorageFile> fileTask = Windows.Storage.StorageFile.GetFileFromPathAsync(filePath).AsTask();
+                Task<Windows.Storage.StorageFolder> folderTask = Windows.Storage.StorageFolder.GetFolderFromPathAsync(folderPath).AsTask();
+                file = await fileTask;
+                folder = await folderTask;
             }
-            */
+            catch
+            {
+                return false;
+            }
+            if (file == null || folder == null)
+                return false;
+            
+            string backupName = string.Concat(
+                file.DisplayName,
+                @"_",
+                DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                file.FileType);
+
+            try
+            {
+                await file.MoveAsync(folder, backupName);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
 
         public string ReadFileContent()
