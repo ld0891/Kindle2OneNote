@@ -24,6 +24,9 @@ namespace Kindle2OneNote
         private static volatile ClippingParser instance = null;
         private static object syncRoot = new Object();
 
+        public const string pattern =
+    @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
+
         private ClippingParser() { }
 
         public static ClippingParser Instance
@@ -46,7 +49,7 @@ namespace Kindle2OneNote
         public List<Clipping> Parse(string fileContent)
         {
             Clipping clip = new Clipping();
-            Regex regex = new Regex(Constants.pattern);
+            Regex regex = new Regex(pattern);
             Match match = regex.Match(fileContent);
             List<Clipping> clippings = new List<Clipping>();
 

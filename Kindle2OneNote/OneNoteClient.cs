@@ -21,32 +21,15 @@ namespace Kindle2OneNote
         public string Picture { get; set; }
     }
 
-    public struct Section
-    {
-        public string ID { get; set; }
-        public string Name { get; set; }
-    }
-
-    public struct Notebook
-    {
-        public string ID { get; set; }
-        public string Name { get; set; }
-        public List<Section> Sections { get; set; }
-    }
-
-    public static class Constants
-    {
-        public const string pattern =
-            @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
-        public const string baseUrl = @"https://www.onenote.com/api/v1.0/me/notes/";
-    }
-
     public sealed class OneNoteClient
     {
         private static volatile OneNoteClient instance = null;
         private static object syncRoot = new Object();
         private static WebAccount account;
+
+        private static readonly int notFound = -1;
         private static readonly string scope = "office.onenote";
+        private static readonly string baseUrl = @"https://www.onenote.com/api/v1.0/me/notes/";
 
         private OneNoteClient() { }
 
@@ -151,14 +134,15 @@ namespace Kindle2OneNote
 
         public async void GetNotebooks()
         {
-            string rawResponse = await QueryNotebooksAndSections();
-            List<Notebook> notebooks = ParseResponse(rawResponse); 
+            string rawResponse = await QuerySections();
+            List<Section> sections = ParseResponse(rawResponse);
+            List<Notebook> notebooks = BuildNotebooksFromSections(sections);
         }
 
-        private async Task<string> QueryNotebooksAndSections()
+        private async Task<string> QuerySections()
         {
             string token = await GetTokenSilentlyAsync();
-            var baseUri = new Uri(Constants.baseUrl);
+            var baseUri = new Uri(baseUrl);
             var queryApi = new Uri(baseUri, @"sections");
             
             using (var client = new HttpClient())
@@ -173,20 +157,42 @@ namespace Kindle2OneNote
             }
         }
 
-        private List<Notebook> ParseResponse(string response)
+        private List<Section> ParseResponse(string response)
         {
+            var section = new Section();
+            var sections = new List<Section>();
             var jsonObject = JsonObject.Parse(response);
-            string test;
 
             foreach (IJsonValue jsonValue in jsonObject.GetNamedArray("value", new JsonArray()))
             {
                 if (jsonValue.ValueType == JsonValueType.Object)
                 {
-                    test = jsonValue.GetObject().GetNamedString("name", "");
+                    section = new Section(jsonValue.GetObject().ToString());
+                    sections.Add(section);
                 }
             }
+            return sections;
+        }
 
-            return new List<Notebook>();
+        private List<Notebook> BuildNotebooksFromSections(List<Section> sections)
+        {
+            int index = 0;
+            var notebooks = new List<Notebook>();
+
+            foreach (Section section in sections)
+            {
+                index = notebooks.IndexOf(section.parent);
+                if (index == notFound)
+                {
+                    section.parent.Sections.Add(section);
+                    notebooks.Add(section.parent);
+                }
+                else
+                {
+                    notebooks[index].Sections.Add(section);
+                }
+            }
+            return notebooks;
         }
     }
 }
