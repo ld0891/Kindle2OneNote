@@ -21,6 +21,7 @@ using Windows.Web.Http;
 using Windows.Security.Credentials;
 using Windows.Storage;
 using System.Threading.Tasks;
+using System.Globalization;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -40,7 +41,7 @@ namespace Kindle2OneNote
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
-        private async void notebookList_Loaded(object sender, RoutedEventArgs e)
+        private void notebookList_Loaded(object sender, RoutedEventArgs e)
         {
             /*           
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
@@ -55,15 +56,6 @@ namespace Kindle2OneNote
                 FutureAccessList.AddOrReplace("PickedFolderToken", folder);
             }
             */
-
-            var msaProvider = await WebAuthenticationCoreManager.FindAccountProviderAsync(
-                "https://login.microsoft.com", "consumers");
-
-            string[] scopes = new string[1] { "office.onenote" };
-            // var msaAuthenticationProvider = new OnlineIdAuthenticationProvider(scopes);
-            // await msaAuthenticationProvider.AuthenticateUserAsync();
-
-            //var oneDriveClient = new OneDriveClient("https://www.onenote.com/api/v1.0/me/notes/", msaAuthProvider);
 
             var comboBox = sender as ComboBox;
             comboBox.PlaceholderText = "File exists";
@@ -95,12 +87,12 @@ namespace Kindle2OneNote
             var comboBox = sender as ComboBox;
             // ... Set SelectedItem as Window Title.
             string value = comboBox.SelectedItem as string;
-            OneNoteClient.Instance.GetNotebooks();
+            OneNote.Instance.GetNotebooks();
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            OneNoteClient.Instance.SignIn();
+            OneNote.Instance.SignIn();
         }
     }
 }

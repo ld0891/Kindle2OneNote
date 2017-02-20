@@ -7,10 +7,11 @@ using Windows.System;
 using Windows.Security.Authentication.Web.Core;
 using Windows.UI.ApplicationSettings;
 using Windows.Data.Json;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using Windows.Web.Http;
 using Windows.Security.Credentials;
 using Windows.Storage;
+
+using System.Text;
 
 
 namespace Kindle2OneNote
@@ -21,19 +22,30 @@ namespace Kindle2OneNote
         public string Picture { get; set; }
     }
 
-    public sealed class OneNoteClient
+    public sealed class OneNote
     {
-        private static volatile OneNoteClient instance = null;
+        private static volatile OneNote instance = null;
         private static object syncRoot = new Object();
         private static WebAccount account;
+        private static HttpClient client;
 
         private static readonly int notFound = -1;
-        private static readonly string scope = "office.onenote";
+        private static readonly string valueKey = @"value";
+        private static readonly string scope = @"office.onenote, office.onenote_update_by_app";
         private static readonly string baseUrl = @"https://www.onenote.com/api/v1.0/me/notes/";
+        private static readonly string timeFormat = @"yyyy/MM/ddTHH:mm:sszzz";
+        private static readonly string contentType = @"application/xhtml+xml";
+        private static readonly string pageHtmlFormat = @"<!DOCTYPE html>
+                                                          <html>
+                                                              <head>
+                                                                  <title>{0}</title>
+                                                                  <meta name=""created"" content=""{1}"" />
+                                                              </head>
+                                                          </html>";
 
-        private OneNoteClient() { }
+        private OneNote() { }
 
-        public static OneNoteClient Instance
+        public static OneNote Instance
         {
             get
             {
@@ -42,7 +54,12 @@ namespace Kindle2OneNote
                     lock (syncRoot)
                     {
                         if (instance == null)
-                            instance = new OneNoteClient();
+                        {
+                            instance = new OneNote();
+                            client = new HttpClient();
+                            client.DefaultRequestHeaders.Accept.Clear();
+                            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+                        }
                     }
                 }
 
@@ -134,36 +151,34 @@ namespace Kindle2OneNote
 
         public async void GetNotebooks()
         {
+            /*
+             * section: 0-3A5991079B7F1889!21146
+             * page: 0-31d3191622644177b0f9164dabcb16f7!72-3A5991079B7F1889!21146
             string rawResponse = await QuerySections();
             List<Section> sections = ParseResponse(rawResponse);
             List<Notebook> notebooks = BuildNotebooksFromSections(sections);
+            */
+
         }
 
         private async Task<string> QuerySections()
         {
+            var queryApi = new Uri(new Uri(baseUrl), @"sections");
             string token = await GetTokenSilentlyAsync();
-            var baseUri = new Uri(baseUrl);
-            var queryApi = new Uri(baseUri, @"sections");
-            
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
 
-                var infoResult = await client.GetAsync(queryApi);
-                string content = await infoResult.Content.ReadAsStringAsync();
-                return content;
-            }
+            var infoResult = await client.GetAsync(queryApi);
+            string content = await infoResult.Content.ReadAsStringAsync();
+            return content;
         }
 
-        private List<Section> ParseResponse(string response)
+        private List<Section> ParseSectionResponse(string response)
         {
             var section = new Section();
             var sections = new List<Section>();
             var jsonObject = JsonObject.Parse(response);
 
-            foreach (IJsonValue jsonValue in jsonObject.GetNamedArray("value", new JsonArray()))
+            foreach (IJsonValue jsonValue in jsonObject.GetNamedArray(valueKey, new JsonArray()))
             {
                 if (jsonValue.ValueType == JsonValueType.Object)
                 {
@@ -193,6 +208,61 @@ namespace Kindle2OneNote
                 }
             }
             return notebooks;
+        }
+
+        private async void CreatePageInSection(string sectionId, string pageName)
+        {
+            string timeString = DateTime.Now.ToString(timeFormat);
+            string token = await GetTokenSilentlyAsync();
+            var createApi = new Uri(new Uri(baseUrl), String.Format("sections/{0}/pages", sectionId));
+
+            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
+            HttpStringContent content = new HttpStringContent(String.Format(pageHtmlFormat, pageName, timeString),
+                Windows.Storage.Streams.UnicodeEncoding.Utf8,
+                contentType);
+            HttpResponseMessage httpResponse = await client.PostAsync(createApi, content);
+            HttpStatusCode code = httpResponse.StatusCode;
+        }
+
+        private async void QueryPagesInSection(string sectionId)
+        {
+            string token = await GetTokenSilentlyAsync();
+            var queryApi = new Uri(new Uri(baseUrl), String.Format("sections/{0}/pages", sectionId));
+            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
+
+            var infoResult = await client.GetAsync(queryApi);
+            string content = await infoResult.Content.ReadAsStringAsync();
+            ParseNotePageResponse(content);
+        }
+
+        private List<NotePage> ParseNotePageResponse(string response)
+        {
+            NotePage notePage = null;
+            var notePages = new List<NotePage>();
+            var jsonObject = JsonObject.Parse(response);
+
+            foreach (IJsonValue jsonValue in jsonObject.GetNamedArray(valueKey, new JsonArray()))
+            {
+                if (jsonValue.ValueType == JsonValueType.Object)
+                {
+                    notePage = new NotePage(jsonValue.GetObject().ToString());
+                    notePages.Add(notePage);
+                }
+            }
+            return notePages;
+        }
+        
+        private async void AppendClippingsToPage(string pageId, List<Clipping> clippings)
+        {
+            string token = await GetTokenSilentlyAsync();
+            var appendApi = new Uri(new Uri(baseUrl), String.Format("pages/{0}/content", pageId));
+            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
+
+            HttpStringContent content = new HttpStringContent("",
+                Windows.Storage.Streams.UnicodeEncoding.Utf8,
+                contentType);
+            HttpResponseMessage httpResponse = await client.PostAsync(appendApi, content);
+            HttpStatusCode code = httpResponse.StatusCode;
         }
     }
 }
