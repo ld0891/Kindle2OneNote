@@ -57,6 +57,8 @@ namespace Kindle2OneNote
             }
             */
 
+            OneNote.Instance.GetNotebooks();
+
             var comboBox = sender as ComboBox;
             comboBox.PlaceholderText = "File exists";
             return;
@@ -87,7 +89,6 @@ namespace Kindle2OneNote
             var comboBox = sender as ComboBox;
             // ... Set SelectedItem as Window Title.
             string value = comboBox.SelectedItem as string;
-            OneNote.Instance.GetNotebooks();
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
