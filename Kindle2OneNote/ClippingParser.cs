@@ -10,19 +10,13 @@ namespace Kindle2OneNote
 {
     public struct Clipping
     {
-        public string Title;
-        public string Author;
-        public uint Page;
-        public uint LocationFrom;
-        public uint LocationTo;
-        public DateTime AddTime;
-        public string Content;
-    }
-
-    public static class Constants
-    {
-        public const string pattern = 
-            @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public uint Page { get; set; }
+        public uint LocationFrom { get; set; }
+        public uint LocationTo { get; set; }
+        public DateTime AddTime { get; set; }
+        public string Content { get; set; }
     }
 
     public sealed class ClippingParser
@@ -51,7 +45,7 @@ namespace Kindle2OneNote
 
         public List<Clipping> Parse(string fileContent)
         {
-            Clipping clip;
+            Clipping clip = new Clipping();
             Regex regex = new Regex(Constants.pattern);
             Match match = regex.Match(fileContent);
             List<Clipping> clippings = new List<Clipping>();

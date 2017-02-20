@@ -17,8 +17,28 @@ namespace Kindle2OneNote
 {
     public struct Account
     {
-        string UserName;
-        string Picture;
+        public string UserName { get; set; }
+        public string Picture { get; set; }
+    }
+
+    public struct Section
+    {
+        public string ID { get; set; }
+        public string Name { get; set; }
+    }
+
+    public struct Notebook
+    {
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public List<Section> Sections { get; set; }
+    }
+
+    public static class Constants
+    {
+        public const string pattern =
+            @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
+        public const string baseUrl = @"https://www.onenote.com/api/v1.0/me/notes/";
     }
 
     public sealed class OneNoteClient
@@ -131,20 +151,42 @@ namespace Kindle2OneNote
 
         public async void GetNotebooks()
         {
-            string token = await GetTokenSilentlyAsync();
-            var restApi = new Uri(@"https://www.onenote.com/api/v1.0/me/notes/notebooks");
-            JsonObject jsonObject;
+            string rawResponse = await QueryNotebooksAndSections();
+            List<Notebook> notebooks = ParseResponse(rawResponse); 
+        }
 
+        private async Task<string> QueryNotebooksAndSections()
+        {
+            string token = await GetTokenSilentlyAsync();
+            var baseUri = new Uri(Constants.baseUrl);
+            var queryApi = new Uri(baseUri, @"sections");
+            
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var infoResult = await client.GetAsync(restApi);
+                var infoResult = await client.GetAsync(queryApi);
                 string content = await infoResult.Content.ReadAsStringAsync();
-                jsonObject = JsonObject.Parse(content);
+                return content;
             }
+        }
+
+        private List<Notebook> ParseResponse(string response)
+        {
+            var jsonObject = JsonObject.Parse(response);
+            string test;
+
+            foreach (IJsonValue jsonValue in jsonObject.GetNamedArray("value", new JsonArray()))
+            {
+                if (jsonValue.ValueType == JsonValueType.Object)
+                {
+                    test = jsonValue.GetObject().GetNamedString("name", "");
+                }
+            }
+
+            return new List<Notebook>();
         }
     }
 }
