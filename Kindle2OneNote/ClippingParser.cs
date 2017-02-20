@@ -10,8 +10,7 @@ namespace Kindle2OneNote
 {
     public struct Clipping
     {
-        public string Title { get; set; }
-        public string Author { get; set; }
+
         public uint Page { get; set; }
         public uint LocationFrom { get; set; }
         public uint LocationTo { get; set; }
@@ -19,11 +18,33 @@ namespace Kindle2OneNote
         public string Content { get; set; }
     }
 
+    public class BookWithClippings : IEquatable<BookWithClippings>
+    {
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public List<Clipping> Clippings { get; set; }
+
+        public BookWithClippings(string title, string author)
+        {
+            Title = title;
+            Author = author;
+        }
+
+        public bool Equals(BookWithClippings other)
+        {
+            if (other == null)
+                return false;
+
+            return String.Equals(this.Title, other.Title) && String.Equals(this.Author, other.Author);
+        }
+    }
+
     public sealed class ClippingParser
     {
         private static volatile ClippingParser instance = null;
         private static object syncRoot = new Object();
 
+        private static readonly int notFound = -1;
         public const string pattern =
     @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
 
@@ -46,28 +67,42 @@ namespace Kindle2OneNote
             }
         }
 
-        public List<Clipping> Parse(string fileContent)
+        public List<BookWithClippings> Parse(string fileContent)
         {
+            int index = notFound;
+            string title = "";
+            string author = "";
             Clipping clip = new Clipping();
+            BookWithClippings book = null;
+            List<BookWithClippings> books = new List<BookWithClippings>();
+
             Regex regex = new Regex(pattern);
             Match match = regex.Match(fileContent);
-            List<Clipping> clippings = new List<Clipping>();
-
             while (match.Success)
             {
-                clip.Title = match.Groups["title"].Value;
-                clip.Author = match.Groups["author"].Value;
                 clip.Page = Convert.ToUInt32(match.Groups["page"].Value);
                 clip.LocationFrom = Convert.ToUInt32(match.Groups["from"].Value);
                 clip.LocationTo = Convert.ToUInt32(match.Groups["to"].Value);
                 clip.AddTime = DateTime.Parse(match.Groups["time"].Value);
                 clip.Content = match.Groups["content"].Value;
-                clippings.Add(clip);
 
+                title = match.Groups["title"].Value;
+                author = match.Groups["author"].Value;
+                book = new BookWithClippings(title, author);
+                index = books.IndexOf(book);
+                if (index == notFound)
+                {
+                    book.Clippings.Add(clip);
+                    books.Add(book);
+                }
+                else
+                {
+                    books[index].Clippings.Add(clip);
+                }
                 match = match.NextMatch();
             }
 
-            return clippings;
+            return books;
         }
     }
 }
