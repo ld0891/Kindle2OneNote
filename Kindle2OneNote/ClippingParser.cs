@@ -10,7 +10,6 @@ namespace Kindle2OneNote
 {
     public struct Clipping
     {
-
         public uint Page { get; set; }
         public uint LocationFrom { get; set; }
         public uint LocationTo { get; set; }

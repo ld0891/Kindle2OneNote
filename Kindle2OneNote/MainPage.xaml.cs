@@ -57,7 +57,8 @@ namespace Kindle2OneNote
             }
             */
 
-            OneNote.Instance.GetNotebooks();
+            NoteRequest.CreatePage(new BookWithClippings("", ""));
+            //NoteRequest.UpdatePage();
 
             var comboBox = sender as ComboBox;
             comboBox.PlaceholderText = "File exists";

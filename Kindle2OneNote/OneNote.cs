@@ -34,7 +34,6 @@ namespace Kindle2OneNote
         private static readonly Uri baseUri = new Uri(@"https://www.onenote.com/api/v1.0/me/notes/");
         private static readonly string timeFormat = @"yyyy/MM/ddTHH:mm:sszzz";
         private static readonly string contentType = @"application/xhtml+xml";
-        private static readonly string pageHtmlFormat = @"<!DOCTYPE html><html><head><title>{0}</title><meta name=""created"" content=""{1}"" /></head><body><div data-id=""_clippings""></div></body></html>";
 
         private OneNote() { }
 
@@ -209,20 +208,6 @@ namespace Kindle2OneNote
                 }
             }
             return notebooks;
-        }
-
-        private async void CreatePageInSection(string sectionId, string pageName)
-        {
-            string timeString = DateTime.Now.ToString(timeFormat);
-            string token = await GetTokenSilentlyAsync();
-            var createApi = new Uri(baseUri, String.Format("sections/{0}/pages", sectionId));
-
-            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
-            HttpStringContent content = new HttpStringContent(String.Format(pageHtmlFormat, pageName, timeString),
-                Windows.Storage.Streams.UnicodeEncoding.Utf8,
-                contentType);
-            HttpResponseMessage httpResponse = await client.PostAsync(createApi, content);
-            HttpStatusCode code = httpResponse.StatusCode;
         }
 
         private async void QueryPagesInSection(string sectionId)
