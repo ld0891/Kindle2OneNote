@@ -41,9 +41,8 @@ namespace Kindle2OneNote
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
-        private void notebookList_Loaded(object sender, RoutedEventArgs e)
+        private async void notebookList_Loaded(object sender, RoutedEventArgs e)
         {
-            /*           
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
             folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
             folderPicker.FileTypeFilter.Add("*");
@@ -55,10 +54,13 @@ namespace Kindle2OneNote
                 Windows.Storage.AccessCache.StorageApplicationPermissions.
                 FutureAccessList.AddOrReplace("PickedFolderToken", folder);
             }
-            */
 
-            NoteRequest.CreatePage(new BookWithClippings("", ""));
-            //NoteRequest.UpdatePage();
+            StorageFile file = await folder.GetFileAsync(@"My Clippings.txt");
+            string fileContent = await Windows.Storage.FileIO.ReadTextAsync(file);
+
+            string sectionId = "0-3A5991079B7F1889!21146";
+            List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
+            OneNote.Instance.UploadClippingsToSection(sectionId, books);
 
             var comboBox = sender as ComboBox;
             comboBox.PlaceholderText = "File exists";

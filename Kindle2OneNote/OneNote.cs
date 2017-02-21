@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -25,15 +26,13 @@ namespace Kindle2OneNote
     {
         private static volatile OneNote instance = null;
         private static object syncRoot = new Object();
-        private static WebAccount account;
+        private static WebAccount account { get; set; }
         private static HttpClient client;
 
         private static readonly int notFound = -1;
         private static readonly string valueKey = @"value";
         private static readonly string scope = @"office.onenote, office.onenote_update_by_app";
         private static readonly Uri baseUri = new Uri(@"https://www.onenote.com/api/v1.0/me/notes/");
-        private static readonly string timeFormat = @"yyyy/MM/ddTHH:mm:sszzz";
-        private static readonly string contentType = @"application/xhtml+xml";
 
         private OneNote() { }
 
@@ -136,11 +135,6 @@ namespace Kindle2OneNote
             await account.SignOutAsync();
         }
 
-        public async Task<Account> GetAccount()
-        {
-            return new Account();
-        }
-
         public async void GetNotebooks()
         {
             /*
@@ -151,14 +145,42 @@ namespace Kindle2OneNote
             List<Notebook> notebooks = BuildNotebooksFromSections(sections);
             */
 
-            string sectionId = "0-3A5991079B7F1889!21146";
-            string pageId = "0-ceb656a37c0d42bb9a74991063a186e6!148-3A5991079B7F1889!21146";
+            //string sectionId = "0-3A5991079B7F1889!21146";
 
             //CreatePageInSection(sectionId, "test without content");
             //QueryPagesInSection(sectionId);
             //AppendClippingsToPage(pageId);
+        }
 
-            string pageHtml = await QueryPageContent(pageId);
+        public async void UploadClippingsToSection(string sectionId, List<BookWithClippings> books)
+        {
+            if (!books.Any())
+            {
+                return;
+            }
+
+            bool bFound = false;
+            string targetName = "";
+            List<NotePage> pages = await QueryPagesInSection(sectionId);
+            foreach (BookWithClippings book in books)
+            {
+                bFound = false;
+                targetName = book.GeneratePageName();
+                foreach (NotePage page in pages)
+                {
+                    if (String.Equals(page.Name, targetName))
+                    {
+                        bFound = true;
+                        AppendClippingsToPage(page.Id, book.Clippings);
+                        break;
+                    }
+                }
+
+                if (!bFound)
+                {
+                    CreateNewPageInSection(sectionId, book);
+                }
+            }
         }
 
         private async Task<string> QuerySections()
@@ -210,7 +232,7 @@ namespace Kindle2OneNote
             return notebooks;
         }
 
-        private async void QueryPagesInSection(string sectionId)
+        private async Task<List<NotePage>> QueryPagesInSection(string sectionId)
         {
             string token = await GetTokenSilentlyAsync();
             var queryApi = new Uri(baseUri, String.Format("sections/{0}/pages", sectionId));
@@ -218,18 +240,7 @@ namespace Kindle2OneNote
 
             var infoResult = await client.GetAsync(queryApi);
             string content = await infoResult.Content.ReadAsStringAsync();
-            ParseNotePageResponse(content);
-        }
-
-        private async Task<string> QueryPageContent(string pageId)
-        {
-            string token = await GetTokenSilentlyAsync();
-            var queryApi = new Uri(baseUri, String.Format("pages/{0}/content", pageId));
-            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
-
-            var infoResult = await client.GetAsync(queryApi);
-            string content = await infoResult.Content.ReadAsStringAsync();
-            return content;
+            return ParseNotePageResponse(content);
         }
 
         private List<NotePage> ParseNotePageResponse(string response)
@@ -248,26 +259,38 @@ namespace Kindle2OneNote
             }
             return notePages;
         }
-        
-        private async void AppendClippingsToPage(string pageId)
+
+        private async void CreateNewPageInSection(string sectionId, BookWithClippings book)
         {
             string token = await GetTokenSilentlyAsync();
-            var appendApi = new Uri(baseUri, String.Format("pages/{0}/content", pageId));
+            string requestBody = NoteRequest.CreatePage(book);
+            var createApi = new Uri(baseUri, String.Format("sections/{0}/pages", sectionId));
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
+            HttpStringContent content = new HttpStringContent(requestBody, UnicodeEncoding.Utf8, @"application/xhtml+xml");
 
-            string content = @"<p style=""font-size:9pt;color:#7f7f7f;margin-top:0pt;margin-bottom:0pt"">Page 176, Location 4351-4351, Sunday, January 29, 2017 3:28:43 PM</p><p style=""font-size:12pt;color:black;font-style:italic;margin-top:0pt;margin-bottom:0pt"">First Democritus: ‘Not out of fear but out of a feeling of what is right should we abstain from doing wrong</p><br />";
+            HttpResponseMessage httpResponse = await client.PostAsync(createApi, content);
+            HttpStatusCode code = httpResponse.StatusCode;
+            string resp = await httpResponse.Content.ReadAsStringAsync();
+        }
 
+
+        private async void AppendClippingsToPage(string pageId, List<Clipping> clippings)
+        {
+            string requestBody = NoteRequest.UpdatePage(clippings);
             var jsonObject = new JsonObject();
-            jsonObject.Add("target", JsonValue.CreateStringValue(@"#_clippings"));
+            jsonObject.Add("target", JsonValue.CreateStringValue(String.Concat(@"#", NoteRequest.dataId)));
             jsonObject.Add("action", JsonValue.CreateStringValue("append"));
             jsonObject.Add("position", JsonValue.CreateStringValue("after"));
-            jsonObject.Add("content", JsonValue.CreateStringValue(content));
+            jsonObject.Add("content", JsonValue.CreateStringValue(requestBody));
             var jsonArray = new JsonArray();
             jsonArray.Add(jsonObject);
 
             var method = new HttpMethod("PATCH");
+            var reqString = jsonArray.ToString();
+            var appendApi = new Uri(baseUri, String.Format("pages/{0}/content", pageId));
             var request = new HttpRequestMessage(method, appendApi);
-            string reqString = jsonArray.ToString();
+            string token = await GetTokenSilentlyAsync();
+            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
             request.Content = new HttpStringContent(reqString, UnicodeEncoding.Utf8, @"application/json");
             HttpResponseMessage httpResponse = await client.SendRequestAsync(request);
             HttpStatusCode code = httpResponse.StatusCode;

@@ -27,14 +27,25 @@ namespace Kindle2OneNote
         {
             Title = title;
             Author = author;
+            Clippings = new List<Clipping>();
+        }
+
+        public string GeneratePageName()
+        {
+            return String.Concat(Title, " by ", Author);
         }
 
         public bool Equals(BookWithClippings other)
         {
             if (other == null)
                 return false;
+            
+            string thisTitle = this.Title;
+            string otherTitle = other.Title;
+            bool titleMatch = this.Title.Equals(other.Title);
+            bool authorMatch = String.Equals(this.Author, other.Author);
 
-            return String.Equals(this.Title, other.Title) && String.Equals(this.Author, other.Author);
+            return titleMatch && authorMatch;
         }
     }
 
@@ -44,8 +55,9 @@ namespace Kindle2OneNote
         private static object syncRoot = new Object();
 
         private static readonly int notFound = -1;
-        public const string pattern =
-    @"(?<title>.*?) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
+        private static readonly char[] byteOrderMark = new char[] { '\uFEFF' };
+        private static readonly string pattern =
+    @"(?<title>.*) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
 
         private ClippingParser() { }
 
@@ -84,8 +96,10 @@ namespace Kindle2OneNote
                 clip.LocationTo = Convert.ToUInt32(match.Groups["to"].Value);
                 clip.AddTime = DateTime.Parse(match.Groups["time"].Value);
                 clip.Content = match.Groups["content"].Value;
+                
+                title = match.Groups["title"].Value.TrimStart(byteOrderMark);
+                byte[] ttBytes = Encoding.ASCII.GetBytes(title);
 
-                title = match.Groups["title"].Value;
                 author = match.Groups["author"].Value;
                 book = new BookWithClippings(title, author);
                 index = books.IndexOf(book);
