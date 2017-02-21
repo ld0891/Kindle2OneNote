@@ -10,11 +10,11 @@ namespace Kindle2OneNote
 {
     public static class NoteRequest
     {
-        private static readonly string dataId = @"_clippings_by_Kindle2OneNote";
+        public static readonly string dataId = @"_clippings_by_Kindle2OneNote";
         private static readonly string timeFormat = @"yyyy/MM/ddTHH:mm:sszzz";
         private static readonly string styleKey = @"style";
         private static readonly string metaStyle = @"font-size:9pt;color:#7f7f7f;margin-top:0pt;margin-bottom:0pt";
-        private static readonly string contentStyle = @"font-size:12pt;color:black;font-style:italic;margin-top:0pt;margin-bottom:0pt";
+        private static readonly string contentStyle = @"font-size:12pt;color:black;font-style:italic;margin-top:0pt;margin-bottom:12pt";
 
         public static string CreatePage(BookWithClippings book)
         {
@@ -23,7 +23,7 @@ namespace Kindle2OneNote
                 return null;
             }
 
-            string title = String.Concat(book.Title, " by ", book.Author);
+            string pageName = book.GeneratePageName();
             string content = UpdatePage(book.Clippings);
 
             StringBuilder str = new StringBuilder();
@@ -35,7 +35,7 @@ namespace Kindle2OneNote
                 xml.WriteStartDocument();
                 xml.WriteStartElement("html");
                 xml.WriteStartElement("head");
-                xml.WriteElementString("title", title);
+                xml.WriteElementString("title", book.GeneratePageName());
                 xml.WriteStartElement("meta");
                 xml.WriteAttributeString("name", "created");
                 xml.WriteAttributeString("content", DateTime.Now.ToString(timeFormat));
@@ -44,15 +44,13 @@ namespace Kindle2OneNote
                 xml.WriteStartElement("body");
                 xml.WriteStartElement("div");
                 xml.WriteAttributeString("data-id", dataId);
-                xml.WriteString(content);
+                xml.WriteRaw(content);
                 xml.WriteEndElement();
                 xml.WriteEndElement();
                 xml.WriteEndElement();
                 xml.WriteEndDocument();
             }
-
-            string result = str.ToString();
-            return "";
+            return str.ToString();
         }
 
         public static string UpdatePage(List<Clipping> clippings)
@@ -83,7 +81,7 @@ namespace Kindle2OneNote
                     xml.WriteString(clip.Content);
                     xml.WriteEndElement();
 
-                    xml.WriteElementString("br", "");
+                    //xml.WriteElementString("br", "");
                 }
             }
             return str.ToString();
