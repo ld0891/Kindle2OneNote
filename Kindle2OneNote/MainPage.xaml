@@ -5,15 +5,36 @@
     xmlns:local="using:Kindle2OneNote"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" Height="1034.144" Width="658.741">
+    mc:Ignorable="d" Height="600" Width="400">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <ComboBox x:Name="sectionList" HorizontalAlignment="Left" Height="50" Margin="80,220,0,0" VerticalAlignment="Top" Width="360" Loaded="sectionList_Loaded" SelectionChanged="sectionList_SelectionChanged"/>
-        <ComboBox x:Name="notebookList" HorizontalAlignment="Left" Height="50" Margin="80,128,0,0" VerticalAlignment="Top" Width="360" Loaded="notebookList_Loaded" SelectionChanged="notebookList_SelectionChanged"/>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button x:Name="LoginButton" Content="Log in" Click="LoginButton_Click" />
-            <TextBlock x:Name="UserIdTextBlock"/>
-            <TextBlock x:Name="UserNameTextBlock"/>
-        </StackPanel>
+    <Grid Margin="10,30,10,0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="User Status:" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Backup Folder:" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Notebook:" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Section:" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock x:Name="userText" Grid.Row="0" Grid.Column="2" Text="Not Set Yet" VerticalAlignment="Center"/>
+        <TextBlock x:Name="backupFolderText" Grid.Row="2" Grid.Column="2" Text="Not Set Yet" VerticalAlignment="Center" TextWrapping="Wrap"/>
+        <ComboBox x:Name="notebookComboBox" Grid.Row="4" Grid.Column="2"/>
+        <ComboBox x:Name="sectionComboBox" Grid.Row="6" Grid.Column="2"/>
+        <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="Sign Out" Click="signInButton_Click" Loaded="signInButton_Loaded"/>
+        <Button x:Name="selectButton" Grid.Row="2" Grid.Column="4" Content="Select" Click="selectButton_Click"/>
     </Grid>
 </Page>
