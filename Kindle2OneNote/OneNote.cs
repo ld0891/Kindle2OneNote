@@ -64,12 +64,17 @@ namespace Kindle2OneNote
             AccountsSettingsPane.Show();
         }
 
+        public bool IsSignedIn()
+        {
+            string userId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
+            return userId != null;
+        }
+
         private async void BuildPaneAsync(AccountsSettingsPane s, AccountsSettingsPaneCommandsRequestedEventArgs e)
         {
             var deferral = e.GetDeferral();
 
-            var msaProvider = await WebAuthenticationCoreManager.FindAccountProviderAsync(
-                "https://login.microsoft.com", "consumers");
+            var msaProvider = await WebAuthenticationCoreManager.FindAccountProviderAsync("https://login.microsoft.com", "consumers");
             var command = new WebAccountProviderCommand(msaProvider, GetMsaTokenAsync);
             e.WebAccountProviderCommands.Add(command);
 
@@ -78,22 +83,27 @@ namespace Kindle2OneNote
 
         private async void GetMsaTokenAsync(WebAccountProviderCommand command)
         {
+            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
+            var page = (MainPage)frame.Content;
             WebTokenRequest request = new WebTokenRequest(command.WebAccountProvider, scope);
             WebTokenRequestResult result = await WebAuthenticationCoreManager.RequestTokenAsync(request);
             if (result.ResponseStatus == WebTokenRequestStatus.Success)
             {
-                string token = result.ResponseData[0].Token;
                 account = result.ResponseData[0].WebAccount;
                 StoreWebAccount();
+                page.OnSignInStatus(true);
+            }
+            else
+            {
+                page.OnSignInStatus(false);
             }
         }
 
         private void StoreWebAccount()
         {
-            ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"] = account.WebAccountProvider.Id;
             ApplicationData.Current.LocalSettings.Values["CurrentUserId"] = account.Id;
+            ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"] = account.WebAccountProvider.Id;
         }
-
 
         private async Task<string> GetTokenSilentlyAsync()
         {
@@ -272,7 +282,6 @@ namespace Kindle2OneNote
             HttpStatusCode code = httpResponse.StatusCode;
             string resp = await httpResponse.Content.ReadAsStringAsync();
         }
-
 
         private async void AppendClippingsToPage(string pageId, List<Clipping> clippings)
         {
