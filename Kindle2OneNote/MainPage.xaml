@@ -5,10 +5,12 @@
     xmlns:local="using:Kindle2OneNote"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" Height="600" Width="400">
+    mc:Ignorable="d" Height="320" Width="480">
 
     <Grid Margin="10,30,10,0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="10" />
             <RowDefinition Height="Auto" />
@@ -35,8 +37,10 @@
         <ComboBox x:Name="notebookComboBox" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" SelectionChanged="notebookComboBox_SelectionChanged" Loaded="notebookComboBox_Loaded"/>
         <ComboBox x:Name="sectionComboBox" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionChanged="sectionComboBox_SelectionChanged"/>
         <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="Sign Out" Click="signInButton_Click" Loaded="signInButton_Loaded"/>
-        <Button x:Name="selectButton" Grid.Row="2" Grid.Column="4" Content="Select" Click="selectButton_Click"/>
+        <Button x:Name="selectButton" Grid.Row="2" Grid.Column="4" Content="Select Folder" Click="selectButton_Click"/>
         <ProgressRing x:Name="notebookRing" Grid.Column="4" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <ProgressRing x:Name="sectionRing" Grid.Column="4" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <Button x:Name="selectFileButton" Grid.Row="8" Grid.Column="4" Content="Select Clipping File" Grid.ColumnSpan="3"/>
+        <Button x:Name="autoplayButton" Grid.Row="10" Grid.Column="4" Content="Setup AutoPlay" Grid.ColumnSpan="3"/>
     </Grid>
 </Page>

@@ -30,7 +30,7 @@ namespace Kindle2OneNote
         {
             this.InitializeComponent();
             
-            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(400, 600);
+            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 320);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
@@ -40,9 +40,6 @@ namespace Kindle2OneNote
             {
                 userText.Text = "Signed in";
                 signInButton.Content = "Sign Out";
-                notebookRing.IsActive = true;
-                sectionRing.IsActive = true;
-                await OneNote.Instance.LoadNotebooks();
                 DisplayNotebooks();
                 notebookRing.IsActive = false;
                 sectionRing.IsActive = false;
@@ -77,6 +74,8 @@ namespace Kindle2OneNote
             }
             else
             {
+                notebookRing.IsActive = true;
+                sectionRing.IsActive = true;
                 OneNote.Instance.SignIn();
             }
         }

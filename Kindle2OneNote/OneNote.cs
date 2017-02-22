@@ -117,6 +117,7 @@ namespace Kindle2OneNote
             {
                 account = result.ResponseData[0].WebAccount;
                 StoreWebAccount();
+                await LoadNotebooks();
                 page.OnSignInStatus(true);
             }
             else
@@ -219,12 +220,12 @@ namespace Kindle2OneNote
         private List<Section> ParseSectionResponse(string response)
         {
             JsonObject jsonObject;
-            var sections = new List<Section>();
             if (!JsonObject.TryParse(response, out jsonObject))
             {
-                return sections;
+                return null;
             }
 
+            var sections = new List<Section>();
             foreach (IJsonValue jsonValue in jsonObject.GetNamedArray(valueKey, new JsonArray()))
             {
                 if (jsonValue.ValueType == JsonValueType.Object)
@@ -238,6 +239,11 @@ namespace Kindle2OneNote
 
         private List<Notebook> BuildNotebooksFromSections(List<Section> sections)
         {
+            if (sections == null)
+            {
+                return null;
+            }
+
             int index = 0;
             var notebooks = new List<Notebook>();
 
