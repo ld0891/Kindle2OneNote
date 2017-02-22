@@ -26,7 +26,8 @@ namespace Kindle2OneNote
     {
         private static volatile OneNote instance = null;
         private static object syncRoot = new Object();
-        private static WebAccount account { get; set; }
+        private static WebAccount account;
+        private static WebAccountProvider provider;
         private static HttpClient client;
 
         private static readonly int notFound = -1;
@@ -34,7 +35,17 @@ namespace Kindle2OneNote
         private static readonly string scope = @"office.onenote, office.onenote_update_by_app";
         private static readonly Uri baseUri = new Uri(@"https://www.onenote.com/api/v1.0/me/notes/");
 
-        private OneNote() { }
+        private OneNote()
+        {
+            client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+
+            if (IsSignedIn())
+            {
+                LoadAccount();
+            }
+        }
 
         public static OneNote Instance
         {
@@ -47,9 +58,6 @@ namespace Kindle2OneNote
                         if (instance == null)
                         {
                             instance = new OneNote();
-                            client = new HttpClient();
-                            client.DefaultRequestHeaders.Accept.Clear();
-                            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
                         }
                     }
                 }
@@ -68,6 +76,20 @@ namespace Kindle2OneNote
         {
             string userId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
             return userId != null;
+        }
+
+        private async void LoadAccount()
+        {
+            string providerId = ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"]?.ToString();
+            string accountId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
+
+            if (null == providerId || null == accountId)
+            {
+                return;
+            }
+
+            provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId);
+            account = await WebAuthenticationCoreManager.FindAccountAsync(provider, accountId);
         }
 
         private async void BuildPaneAsync(AccountsSettingsPane s, AccountsSettingsPaneCommandsRequestedEventArgs e)
@@ -107,17 +129,6 @@ namespace Kindle2OneNote
 
         private async Task<string> GetTokenSilentlyAsync()
         {
-            string providerId = ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"]?.ToString();
-            string accountId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
-
-            if (null == providerId || null == accountId)
-            {
-                return null;
-            }
-
-            WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId);
-            WebAccount account = await WebAuthenticationCoreManager.FindAccountAsync(provider, accountId);
-
             WebTokenRequest request = new WebTokenRequest(provider, scope);
 
             WebTokenRequestResult result = await WebAuthenticationCoreManager.GetTokenSilentlyAsync(request, account);
@@ -140,6 +151,9 @@ namespace Kindle2OneNote
 
         public async void SignOut()
         {
+            if (!IsSignedIn())
+                return;
+
             ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserProviderId");
             ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserId");
             await account.SignOutAsync();
