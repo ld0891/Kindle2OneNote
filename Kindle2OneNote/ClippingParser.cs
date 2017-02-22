@@ -8,47 +8,6 @@ using System.Text.RegularExpressions;
 
 namespace Kindle2OneNote
 {
-    public struct Clipping
-    {
-        public uint Page { get; set; }
-        public uint LocationFrom { get; set; }
-        public uint LocationTo { get; set; }
-        public DateTime AddTime { get; set; }
-        public string Content { get; set; }
-    }
-
-    public class BookWithClippings : IEquatable<BookWithClippings>
-    {
-        public string Title { get; set; }
-        public string Author { get; set; }
-        public List<Clipping> Clippings { get; set; }
-
-        public BookWithClippings(string title, string author)
-        {
-            Title = title;
-            Author = author;
-            Clippings = new List<Clipping>();
-        }
-
-        public string GeneratePageName()
-        {
-            return String.Concat(Title, " by ", Author);
-        }
-
-        public bool Equals(BookWithClippings other)
-        {
-            if (other == null)
-                return false;
-            
-            string thisTitle = this.Title;
-            string otherTitle = other.Title;
-            bool titleMatch = this.Title.Equals(other.Title);
-            bool authorMatch = String.Equals(this.Author, other.Author);
-
-            return titleMatch && authorMatch;
-        }
-    }
-
     public sealed class ClippingParser
     {
         private static volatile ClippingParser instance = null;
