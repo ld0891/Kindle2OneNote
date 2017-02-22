@@ -80,8 +80,6 @@ namespace Kindle2OneNote
                     xml.WriteAttributeString(styleKey, contentStyle);
                     xml.WriteString(clip.Content);
                     xml.WriteEndElement();
-
-                    //xml.WriteElementString("br", "");
                 }
             }
             return str.ToString();
