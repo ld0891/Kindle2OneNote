@@ -43,11 +43,6 @@ namespace Kindle2OneNote
             client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-
-            if (IsSignedIn())
-            {
-                LoadAccount();
-            }
         }
 
         public static OneNote Instance
@@ -81,7 +76,7 @@ namespace Kindle2OneNote
             return userId != null;
         }
 
-        private async void LoadAccount()
+        private async Task LoadAccount()
         {
             string providerId = ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"]?.ToString();
             string accountId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
@@ -134,8 +129,8 @@ namespace Kindle2OneNote
 
         private async Task<string> GetTokenSilentlyAsync()
         {
+            await LoadAccount();
             WebTokenRequest request = new WebTokenRequest(provider, scope);
-
             WebTokenRequestResult result = await WebAuthenticationCoreManager.GetTokenSilentlyAsync(request, account);
             if (result.ResponseStatus == WebTokenRequestStatus.UserInteractionRequired)
             {
@@ -210,8 +205,12 @@ namespace Kindle2OneNote
         {
             var queryApi = new Uri(baseUri, @"sections");
             string token = await GetTokenSilentlyAsync();
-            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
+            if (token == null)
+            {
+                return null;
+            }
 
+            client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
             var infoResult = await client.GetAsync(queryApi);
             string content = await infoResult.Content.ReadAsStringAsync();
             return content;
@@ -246,7 +245,6 @@ namespace Kindle2OneNote
 
             int index = 0;
             var notebooks = new List<Notebook>();
-
             foreach (Section section in sections)
             {
                 index = notebooks.IndexOf(section.parent);

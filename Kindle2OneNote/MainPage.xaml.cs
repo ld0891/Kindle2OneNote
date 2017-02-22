@@ -34,7 +34,7 @@ namespace Kindle2OneNote
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
-        public async void OnSignInStatus(bool isSuccess)
+        public void OnSignInStatus(bool isSuccess)
         {
             if (isSuccess)
             {
@@ -158,6 +158,19 @@ namespace Kindle2OneNote
             notebookComboBox.ItemsSource = OneNote.Instance.Notebooks;
             notebookComboBox.DisplayMemberPath = "Name";
             notebookComboBox.SelectedIndex = -1;
+        }
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (OneNote.Instance.IsSignedIn())
+            {
+                notebookRing.IsActive = true;
+                sectionRing.IsActive = true;
+                await OneNote.Instance.LoadNotebooks();
+                DisplayNotebooks();
+                notebookRing.IsActive = false;
+                sectionRing.IsActive = false;
+            }
         }
     }
 }

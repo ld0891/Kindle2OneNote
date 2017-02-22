@@ -5,7 +5,7 @@
     xmlns:local="using:Kindle2OneNote"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" Height="320" Width="480">
+    mc:Ignorable="d" Height="320" Width="480" Loaded="Page_Loaded">
 
     <Grid Margin="10,30,10,0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
