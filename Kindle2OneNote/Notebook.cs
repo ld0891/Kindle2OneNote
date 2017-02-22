@@ -7,7 +7,7 @@ using Windows.Data.Json;
 
 namespace Kindle2OneNote
 {
-    class Notebook : IEquatable<Notebook>
+    public class Notebook : IEquatable<Notebook>
     {
         private const string idKey = "id";
         private const string nameKey = "name";

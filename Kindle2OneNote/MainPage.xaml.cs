@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 using Windows.Storage;
+using System.Threading.Tasks;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -33,7 +34,7 @@ namespace Kindle2OneNote
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
-        public void OnSignInStatus(bool isSuccess)
+        public async void OnSignInStatus(bool isSuccess)
         {
             if (isSuccess)
             {
@@ -41,6 +42,10 @@ namespace Kindle2OneNote
                 signInButton.Content = "Sign Out";
                 notebookRing.IsActive = true;
                 sectionRing.IsActive = true;
+                await OneNote.Instance.LoadNotebooks();
+                DisplayNotebooks();
+                notebookRing.IsActive = false;
+                sectionRing.IsActive = false;
             }
             else
             {
@@ -62,11 +67,13 @@ namespace Kindle2OneNote
             }
         }
 
-        private void signInButton_Click(object sender, RoutedEventArgs e)
+        private async void signInButton_Click(object sender, RoutedEventArgs e)
         {
             if (OneNote.Instance.IsSignedIn())
             {
-                OneNote.Instance.SignOut();
+                await OneNote.Instance.SignOut();
+                notebookComboBox.ItemsSource = null;
+                sectionComboBox.ItemsSource = null;
             }
             else
             {
@@ -115,6 +122,43 @@ namespace Kindle2OneNote
             {
                 userText.Text = "Not set yet";
             }
+        }
+
+        private void DisplayNotebooks()
+        {
+            notebookComboBox.ItemsSource = OneNote.Instance.Notebooks;
+            notebookComboBox.DisplayMemberPath = "Name";
+            notebookComboBox.SelectedIndex = 0;
+        }
+
+        private void notebookComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var notebooksComboBox = sender as ComboBox;
+            Notebook notebook = notebooksComboBox.SelectedItem as Notebook;
+            if (notebook == null)
+            {
+                return;
+            }
+            sectionComboBox.ItemsSource = notebook.Sections;
+            sectionComboBox.DisplayMemberPath = "Name";
+            sectionComboBox.SelectedIndex = 0;
+        }
+
+        private void sectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var sectionComboBox = sender as ComboBox;
+            Section section = sectionComboBox.SelectedItem as Section;
+            if (section == null)
+            {
+                return;
+            }
+        }
+
+        private void notebookComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            notebookComboBox.ItemsSource = OneNote.Instance.Notebooks;
+            notebookComboBox.DisplayMemberPath = "Name";
+            notebookComboBox.SelectedIndex = -1;
         }
     }
 }

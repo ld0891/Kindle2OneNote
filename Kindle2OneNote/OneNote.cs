@@ -29,6 +29,8 @@ namespace Kindle2OneNote
         private static WebAccount account;
         private static WebAccountProvider provider;
         private static HttpClient client;
+        public List<Notebook> Notebooks { get; private set; }
+        public string SectionId { get; set; }
 
         private static readonly int notFound = -1;
         private static readonly string valueKey = @"value";
@@ -37,6 +39,7 @@ namespace Kindle2OneNote
 
         private OneNote()
         {
+            Notebooks = new List<Notebook>();
             client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
@@ -150,7 +153,7 @@ namespace Kindle2OneNote
             }
         }
 
-        public async void SignOut()
+        public async Task SignOut()
         {
             if (!IsSignedIn())
                 return;
@@ -164,21 +167,11 @@ namespace Kindle2OneNote
             page.OnSignInStatus(false);
         }
 
-        public async void GetNotebooks()
+        public async Task LoadNotebooks()
         {
-            /*
-             * section: 0-3A5991079B7F1889!21146
-             * page: 0-840af1e32adf44269d9f4d54c80b311c!157-3A5991079B7F1889!21146
-            string rawResponse = await QuerySections();
-            List<Section> sections = ParseResponse(rawResponse);
-            List<Notebook> notebooks = BuildNotebooksFromSections(sections);
-            */
-
-            //string sectionId = "0-3A5991079B7F1889!21146";
-
-            //CreatePageInSection(sectionId, "test without content");
-            //QueryPagesInSection(sectionId);
-            //AppendClippingsToPage(pageId);
+            string response = await QuerySections();
+            List<Section> sections = ParseSectionResponse(response);
+            Notebooks = BuildNotebooksFromSections(sections);
         }
 
         public async void UploadClippingsToSection(string sectionId, List<BookWithClippings> books)
@@ -225,15 +218,18 @@ namespace Kindle2OneNote
 
         private List<Section> ParseSectionResponse(string response)
         {
-            var section = new Section();
+            JsonObject jsonObject;
             var sections = new List<Section>();
-            var jsonObject = JsonObject.Parse(response);
+            if (!JsonObject.TryParse(response, out jsonObject))
+            {
+                return sections;
+            }
 
             foreach (IJsonValue jsonValue in jsonObject.GetNamedArray(valueKey, new JsonArray()))
             {
                 if (jsonValue.ValueType == JsonValueType.Object)
                 {
-                    section = new Section(jsonValue.GetObject().ToString());
+                    var section = new Section(jsonValue.GetObject().ToString());
                     sections.Add(section);
                 }
             }
