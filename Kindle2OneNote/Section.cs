@@ -7,7 +7,7 @@ using Windows.Data.Json;
 
 namespace Kindle2OneNote
 {
-    class Section
+    public class Section
     {
         private const string idKey = "id";
         private const string nameKey = "name";
