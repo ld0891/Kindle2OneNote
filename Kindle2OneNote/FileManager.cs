@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Windows.Storage;
+
 namespace Kindle2OneNote
 {
     public sealed class FileManager
     {
         private static volatile FileManager instance = null;
         private static object syncRoot = new Object();
+        private static readonly string folderToken = @"_backup_folder_Kindle2OneNote";
 
         private FileManager() { }
 
@@ -30,21 +33,20 @@ namespace Kindle2OneNote
             }
         }
 
-        public async Task<bool> MoveFileToFolder(string filePath, string folderPath)
+        public void OnNewFolderSelected(StorageFolder folder)
         {
-            Windows.Storage.StorageFile file;
-            Windows.Storage.StorageFolder folder;
-            try
+            if (folder == null)
             {
-                Task<Windows.Storage.StorageFile> fileTask = Windows.Storage.StorageFile.GetFileFromPathAsync(filePath).AsTask();
-                Task<Windows.Storage.StorageFolder> folderTask = Windows.Storage.StorageFolder.GetFolderFromPathAsync(folderPath).AsTask();
-                file = await fileTask;
-                folder = await folderTask;
+                return;
             }
-            catch
-            {
-                return false;
-            }
+
+            Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderToken, folder);
+        }
+
+        public async Task<bool> BackupFile(string filePath)
+        {
+            StorageFile file = await Windows.Storage.StorageFile.GetFileFromPathAsync(filePath).AsTask();
+            StorageFolder folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderToken);
             if (file == null || folder == null)
                 return false;
             
@@ -88,6 +90,14 @@ namespace Kindle2OneNote
             {
                 return false;
             }
+        }
+
+        public async void DeleteFile(string filePath)
+        {
+            StorageFile file = await Windows.Storage.StorageFile.GetFileFromPathAsync(filePath).AsTask();
+            if (file == null)
+                return;
+            await file.DeleteAsync();
         }
     }
 }
