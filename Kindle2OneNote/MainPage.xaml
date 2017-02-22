@@ -30,8 +30,8 @@
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Backup Folder:" TextAlignment="Right" VerticalAlignment="Center"/>
         <TextBlock Grid.Row="4" Grid.Column="0" Text="Notebook:" TextAlignment="Right" VerticalAlignment="Center"/>
         <TextBlock Grid.Row="6" Grid.Column="0" Text="Section:" TextAlignment="Right" VerticalAlignment="Center"/>
-        <TextBlock x:Name="userText" Grid.Row="0" Grid.Column="2" Text="Not Set Yet" VerticalAlignment="Center"/>
-        <TextBlock x:Name="backupFolderText" Grid.Row="2" Grid.Column="2" Text="Not Set Yet" VerticalAlignment="Center" TextWrapping="Wrap" Loaded="backupFolderText_Loaded"/>
+        <TextBlock x:Name="userText" Grid.Row="0" Grid.Column="2" Text="" VerticalAlignment="Center" Loaded="userText_Loaded"/>
+        <TextBlock x:Name="backupFolderText" Grid.Row="2" Grid.Column="2" Text="" VerticalAlignment="Center" TextWrapping="Wrap" Loaded="backupFolderText_Loaded"/>
         <ComboBox x:Name="notebookComboBox" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
         <ComboBox x:Name="sectionComboBox" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
         <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="Sign Out" Click="signInButton_Click" Loaded="signInButton_Loaded"/>

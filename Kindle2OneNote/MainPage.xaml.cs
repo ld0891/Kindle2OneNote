@@ -13,15 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-using Windows.System;
-using Windows.Security.Authentication.Web.Core;
-using Windows.UI.ApplicationSettings;
-using Windows.Data.Json;
-using Windows.Web.Http;
-using Windows.Security.Credentials;
 using Windows.Storage;
-using System.Threading.Tasks;
-using System.Globalization;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -33,9 +25,6 @@ namespace Kindle2OneNote
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private static readonly string signInText = "Sign In";
-        private static readonly string signOutText = "Sign Out";
-
         public MainPage()
         {
             this.InitializeComponent();
@@ -48,11 +37,15 @@ namespace Kindle2OneNote
         {
             if (isSuccess)
             {
-                signInButton.Content = signOutText;
+                userText.Text = "Signed in";
+                signInButton.Content = "Sign Out";
+                notebookRing.IsActive = true;
+                sectionRing.IsActive = true;
             }
             else
             {
-                signInButton.Content = signInText;
+                userText.Text = "Not set yet";
+                signInButton.Content = "Sign In";
             }
         }
 
@@ -61,11 +54,11 @@ namespace Kindle2OneNote
             var signInButton = sender as Button;
             if (!OneNote.Instance.IsSignedIn())
             {
-                signInButton.Content = signInText;
+                signInButton.Content = "Sign In";
             }
             else
             {
-                signInButton.Content = signOutText;
+                signInButton.Content = "Sign Out";
             }
         }
 
@@ -108,6 +101,19 @@ namespace Kindle2OneNote
             else
             {
                 folderTextBlock.Text = folderPath;
+            }
+        }
+
+        private void userText_Loaded(object sender, RoutedEventArgs e)
+        {
+            var userText = sender as TextBlock;
+            if (OneNote.Instance.IsSignedIn())
+            {
+                userText.Text = "Signed in";
+            }
+            else
+            {
+                userText.Text = "Not set yet";
             }
         }
     }

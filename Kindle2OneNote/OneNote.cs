@@ -101,6 +101,7 @@ namespace Kindle2OneNote
             e.WebAccountProviderCommands.Add(command);
 
             deferral.Complete();
+            AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested -= BuildPaneAsync;
         }
 
         private async void GetMsaTokenAsync(WebAccountProviderCommand command)
@@ -153,10 +154,14 @@ namespace Kindle2OneNote
         {
             if (!IsSignedIn())
                 return;
-
+            
+            await account.SignOutAsync();
             ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserProviderId");
             ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserId");
-            await account.SignOutAsync();
+
+            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
+            var page = (MainPage)frame.Content;
+            page.OnSignInStatus(false);
         }
 
         public async void GetNotebooks()
