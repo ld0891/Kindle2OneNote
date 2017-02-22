@@ -33,70 +33,68 @@ namespace Kindle2OneNote
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private static readonly string signInText = "Sign In";
+        private static readonly string signOutText = "Sign Out";
+
         public MainPage()
         {
             this.InitializeComponent();
-
-            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 640);
+            
+            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(400, 600);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
-        private async void notebookList_Loaded(object sender, RoutedEventArgs e)
+        public void OnSignInStatus(bool isSuccess)
+        {
+            if (isSuccess)
+            {
+                signInButton.Content = signOutText;
+            }
+            else
+            {
+                signInButton.Content = signInText;
+            }
+        }
+
+        private void signInButton_Loaded(object sender, RoutedEventArgs e)
+        {
+            var signInButton = sender as Button;
+            if (!OneNote.Instance.IsSignedIn())
+            {
+                signInButton.Content = signInText;
+            }
+            else
+            {
+                signInButton.Content = signOutText;
+            }
+        }
+
+        private void signInButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (OneNote.Instance.IsSignedIn())
+            {
+                OneNote.Instance.SignOut();
+            }
+            else
+            {
+                OneNote.Instance.SignIn();
+            }
+        }
+
+        private async void selectButton_Click(object sender, RoutedEventArgs e)
         {
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             folderPicker.FileTypeFilter.Add("*");
             Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            if (folder == null)
             {
-                // Application now has read/write access to all contents in the picked folder
-                // (including other sub-folder contents)
-                Windows.Storage.AccessCache.StorageApplicationPermissions.
-                FutureAccessList.AddOrReplace("PickedFolderToken", folder);
+                return;
             }
 
+            FileManager.Instance.OnNewFolderSelected(folder);
             StorageFile file = await folder.GetFileAsync(@"My Clippings.txt");
             string fileContent = await Windows.Storage.FileIO.ReadTextAsync(file);
-
-            string sectionId = "0-3A5991079B7F1889!21146";
-            List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
-            OneNote.Instance.UploadClippingsToSection(sectionId, books);
-
-            var comboBox = sender as ComboBox;
-            comboBox.PlaceholderText = "File exists";
-            return;
-        }
-
-        private void notebookList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = sender as ComboBox;
-            // ... Set SelectedItem as Window Title.
-            string value = comboBox.SelectedItem as string;
-        }
-
-        private void sectionList_Loaded(object sender, RoutedEventArgs e)
-        {
-            List<string> data = new List<string>();
-            data.Add("Book");
-            data.Add("Computer");
-            data.Add("Chair");
-            data.Add("Mug");
-            
-            var comboBox = sender as ComboBox;
-            comboBox.ItemsSource = data;
-            comboBox.PlaceholderText = "Choose the section";
-        }
-
-        private void sectionList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = sender as ComboBox;
-            // ... Set SelectedItem as Window Title.
-            string value = comboBox.SelectedItem as string;
-        }
-
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
-        {
-            OneNote.Instance.SignIn();
         }
     }
 }
