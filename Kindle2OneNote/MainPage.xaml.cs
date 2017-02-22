@@ -96,5 +96,19 @@ namespace Kindle2OneNote
             StorageFile file = await folder.GetFileAsync(@"My Clippings.txt");
             string fileContent = await Windows.Storage.FileIO.ReadTextAsync(file);
         }
+
+        private async void backupFolderText_Loaded(object sender, RoutedEventArgs e)
+        {
+            var folderTextBlock = sender as TextBlock;
+            string folderPath = await FileManager.Instance.GetBackupFolderPath();
+            if (folderPath == null)
+            {
+                folderTextBlock.Text = "Not set yet";
+            }
+            else
+            {
+                folderTextBlock.Text = folderPath;
+            }
+        }
     }
 }

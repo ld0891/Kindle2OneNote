@@ -33,6 +33,25 @@ namespace Kindle2OneNote
             }
         }
 
+        public async Task<string> GetBackupFolderPath()
+        {
+            StorageFolder folder;
+            try
+            {
+                folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderToken);
+            }
+            catch
+            {
+                return null;
+            }
+            if (folder == null)
+            {
+                return null;
+            }
+
+            return folder.Path;
+        }
+
         public void OnNewFolderSelected(StorageFolder folder)
         {
             if (folder == null)
