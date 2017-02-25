@@ -13,79 +13,49 @@ namespace Kindle2OneNote
 {
     static class Account
     {
-        public static string UserName { get; set; }
-        public static string Picture { get; set; }
-
-        private static WebAccount account;
-        private static WebAccountProvider provider;
-
+        private static readonly string storedAccountIdKey = "CurrentUserId";
+        private static readonly string storedProviderIdKey = "CurrentUserProviderId";
+        private static readonly string storedProviderAuthorityKey = "CurrentUserProviderAuthority";
         private static readonly string scope = @"office.onenote, office.onenote_update_by_app";
-
+        private static readonly string providerId = @"https://login.microsoft.com";
+        private static readonly string providerAuthority = @"consumers";
+        
         public static void SignIn()
         {
             AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested += BuildPaneAsync;
             AccountsSettingsPane.Show();
         }
 
-        public static bool IsSignedIn()
+        public static async Task SignOut()
         {
-            string userId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
-            return userId != null;
-        }
-
-        private static async Task LoadAccount()
-        {
-            string providerId = ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"]?.ToString();
-            string accountId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
-
-            if (null == providerId || null == accountId)
-            {
+            if (!IsSignedIn())
                 return;
+
+            WebAccount account = await GetWebAccount();
+            if (account != null)
+            {
+                await account.SignOutAsync();
+                account = null;
             }
+            RemoveAccountData();
 
-            provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId);
-            account = await WebAuthenticationCoreManager.FindAccountAsync(provider, accountId);
-        }
-
-        private static async void BuildPaneAsync(AccountsSettingsPane s, AccountsSettingsPaneCommandsRequestedEventArgs e)
-        {
-            var deferral = e.GetDeferral();
-
-            var msaProvider = await WebAuthenticationCoreManager.FindAccountProviderAsync("https://login.microsoft.com", "consumers");
-            var command = new WebAccountProviderCommand(msaProvider, GetMsaTokenAsync);
-            e.WebAccountProviderCommands.Add(command);
-
-            deferral.Complete();
-            AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested -= BuildPaneAsync;
-        }
-
-        private static async void GetMsaTokenAsync(WebAccountProviderCommand command)
-        {
             var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
             var page = (MainPage)frame.Content;
-            WebTokenRequest request = new WebTokenRequest(command.WebAccountProvider, scope);
-            WebTokenRequestResult result = await WebAuthenticationCoreManager.RequestTokenAsync(request);
-            if (result.ResponseStatus == WebTokenRequestStatus.Success)
-            {
-                account = result.ResponseData[0].WebAccount;
-                StoreWebAccount();
-                page.OnSignInStatus(true);
-            }
-            else
-            {
-                page.OnSignInStatus(false);
-            }
+            page.OnSignInStatus(false);
         }
 
-        private static void StoreWebAccount()
+        public static bool IsSignedIn()
         {
-            ApplicationData.Current.LocalSettings.Values["CurrentUserId"] = account.Id;
-            ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"] = account.WebAccountProvider.Id;
+            return ApplicationData.Current.LocalSettings.Values.ContainsKey(storedAccountIdKey) &&
+                ApplicationData.Current.LocalSettings.Values.ContainsKey(storedProviderIdKey) &&
+                ApplicationData.Current.LocalSettings.Values.ContainsKey(storedProviderAuthorityKey);
         }
 
-        public static async Task<string> GetTokenSilentlyAsync()
+        public static async Task<string> GetToken()
         {
-            await LoadAccount();
+            WebAccount account = await GetWebAccount();
+            WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId);
+
             WebTokenRequest request = new WebTokenRequest(provider, scope);
             WebTokenRequestResult result = await WebAuthenticationCoreManager.GetTokenSilentlyAsync(request, account);
             if (result.ResponseStatus == WebTokenRequestStatus.UserInteractionRequired)
@@ -105,18 +75,66 @@ namespace Kindle2OneNote
             }
         }
 
-        public static async Task SignOut()
+        private static void StoreWebAccount(WebAccount account)
         {
-            if (!IsSignedIn())
-                return;
+            ApplicationData.Current.LocalSettings.Values[storedAccountIdKey] = account.Id;
+            ApplicationData.Current.LocalSettings.Values[storedProviderIdKey] = account.WebAccountProvider.Id;
+            ApplicationData.Current.LocalSettings.Values[storedProviderAuthorityKey] = account.WebAccountProvider.Authority;
+        }
 
-            await account.SignOutAsync();
-            ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserProviderId");
-            ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserId");
+        private static async Task<WebAccount> GetWebAccount()
+        {
+            String accountID = ApplicationData.Current.LocalSettings.Values[storedAccountIdKey] as String;
+            String providerID = ApplicationData.Current.LocalSettings.Values[storedProviderIdKey] as String;
+            String authority = ApplicationData.Current.LocalSettings.Values[storedProviderAuthorityKey] as String;
+            
+            WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId);
+            WebAccount account = await WebAuthenticationCoreManager.FindAccountAsync(provider, accountID);
+            // The account has been deleted if FindAccountAsync returns null
+            if (account == null)
+            {
+                RemoveAccountData();
+            }
 
+            return account;
+        }
+
+        private static void RemoveAccountData()
+        {
+            ApplicationData.Current.LocalSettings.Values.Remove(storedAccountIdKey);
+            ApplicationData.Current.LocalSettings.Values.Remove(storedProviderIdKey);
+            ApplicationData.Current.LocalSettings.Values.Remove(storedProviderAuthorityKey);
+        }
+
+        private static async void BuildPaneAsync(AccountsSettingsPane s, AccountsSettingsPaneCommandsRequestedEventArgs e)
+        {
+            var deferral = e.GetDeferral();
+
+            var msaProvider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId, providerAuthority);
+            var command = new WebAccountProviderCommand(msaProvider, GetMsaTokenAsync);
+            e.WebAccountProviderCommands.Add(command);
+
+            deferral.Complete();
+            AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested -= BuildPaneAsync;
+        }
+
+        private static async void GetMsaTokenAsync(WebAccountProviderCommand command)
+        {
             var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
             var page = (MainPage)frame.Content;
-            page.OnSignInStatus(false);
+
+            WebTokenRequest request = new WebTokenRequest(command.WebAccountProvider, scope);
+            WebTokenRequestResult result = await WebAuthenticationCoreManager.RequestTokenAsync(request);
+            if (result.ResponseStatus == WebTokenRequestStatus.Success)
+            {
+                WebAccount account = result.ResponseData[0].WebAccount;
+                StoreWebAccount(account);
+                page.OnSignInStatus(true);
+            }
+            else
+            {
+                page.OnSignInStatus(false);
+            }
         }
     }
 }

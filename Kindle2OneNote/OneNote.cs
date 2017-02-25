@@ -94,7 +94,7 @@ namespace Kindle2OneNote
         private async Task<string> QuerySections()
         {
             var queryApi = new Uri(baseUri, @"sections");
-            string token = await Account.GetTokenSilentlyAsync();
+            string token = await Account.GetToken();
             if (token == null)
             {
                 return null;
@@ -153,7 +153,7 @@ namespace Kindle2OneNote
 
         private async Task<List<NotePage>> QueryPagesInSection(string sectionId)
         {
-            string token = await Account.GetTokenSilentlyAsync();
+            string token = await Account.GetToken();
             var queryApi = new Uri(baseUri, String.Format("sections/{0}/pages", sectionId));
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
 
@@ -181,7 +181,7 @@ namespace Kindle2OneNote
 
         private async void CreateNewPageInSection(string sectionId, BookWithClippings book)
         {
-            string token = await Account.GetTokenSilentlyAsync();
+            string token = await Account.GetToken();
             string requestBody = NoteRequest.CreatePage(book);
             var createApi = new Uri(baseUri, String.Format("sections/{0}/pages", sectionId));
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
@@ -207,7 +207,7 @@ namespace Kindle2OneNote
             var reqString = jsonArray.ToString();
             var appendApi = new Uri(baseUri, String.Format("pages/{0}/content", pageId));
             var request = new HttpRequestMessage(method, appendApi);
-            string token = await Account.GetTokenSilentlyAsync();
+            string token = await Account.GetToken();
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
             request.Content = new HttpStringContent(reqString, UnicodeEncoding.Utf8, @"application/json");
             HttpResponseMessage httpResponse = await client.SendRequestAsync(request);
