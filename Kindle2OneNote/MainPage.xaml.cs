@@ -50,6 +50,8 @@ namespace Kindle2OneNote
                 userText.Text = "Not set yet";
                 signInButton.Content = "Sign In";
             }
+
+            RefreshSelectFileButtonStatus();
         }
 
         private void signInButton_Loaded(object sender, RoutedEventArgs e)
@@ -72,6 +74,7 @@ namespace Kindle2OneNote
                 await Account.SignOut();
                 notebookComboBox.ItemsSource = null;
                 sectionComboBox.ItemsSource = null;
+                OneNote.Instance.Reset();
             }
             else
             {
@@ -93,6 +96,8 @@ namespace Kindle2OneNote
             }
 
             FileManager.Instance.OnNewFolderSelected(folder);
+            RefreshSelectFileButtonStatus();
+
             StorageFile file = await folder.GetFileAsync(@"My Clippings.txt");
             string fileContent = await Windows.Storage.FileIO.ReadTextAsync(file);
         }
@@ -128,6 +133,15 @@ namespace Kindle2OneNote
         {
             notebookComboBox.ItemsSource = OneNote.Instance.Notebooks;
             notebookComboBox.DisplayMemberPath = "Name";
+
+            foreach (Notebook book in OneNote.Instance.Notebooks)
+            {
+                if (book.Selected)
+                {
+                    notebookComboBox.SelectedItem = book;
+                    return;
+                }
+            }
             notebookComboBox.SelectedIndex = 0;
         }
 
@@ -139,8 +153,18 @@ namespace Kindle2OneNote
             {
                 return;
             }
+
             sectionComboBox.ItemsSource = notebook.Sections;
             sectionComboBox.DisplayMemberPath = "Name";
+
+            foreach (Section section in notebook.Sections)
+            {
+                if (section.Selected)
+                {
+                    sectionComboBox.SelectedItem = section;
+                    return;
+                }
+            }
             sectionComboBox.SelectedIndex = 0;
         }
 
@@ -153,7 +177,8 @@ namespace Kindle2OneNote
                 return;
             }
 
-            OneNote.Instance.SectionId = section.Id;
+            OneNote.Instance.TargetSectionId = section.Id;
+            RefreshSelectFileButtonStatus();
         }
 
         private void notebookComboBox_Loaded(object sender, RoutedEventArgs e)
@@ -173,6 +198,27 @@ namespace Kindle2OneNote
                 DisplayNotebooks();
                 notebookRing.IsActive = false;
                 sectionRing.IsActive = false;
+            }
+
+            RefreshSelectFileButtonStatus();
+        }
+
+        private void selectFileButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RefreshSelectFileButtonStatus()
+        {
+            if (!Account.IsSignedIn() ||
+                OneNote.Instance.TargetSectionId == null ||
+                FileManager.Instance.GetBackupFolderPath() == null)
+            {
+                selectFileButton.IsEnabled = false;
+            }
+            else
+            {
+                selectFileButton.IsEnabled = true;
             }
         }
     }

@@ -86,11 +86,9 @@ namespace Kindle2OneNote
         {
             String accountID = ApplicationData.Current.LocalSettings.Values[storedAccountIdKey] as String;
             String providerID = ApplicationData.Current.LocalSettings.Values[storedProviderIdKey] as String;
-            String authority = ApplicationData.Current.LocalSettings.Values[storedProviderAuthorityKey] as String;
             
             WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId);
             WebAccount account = await WebAuthenticationCoreManager.FindAccountAsync(provider, accountID);
-            // The account has been deleted if FindAccountAsync returns null
             if (account == null)
             {
                 RemoveAccountData();
