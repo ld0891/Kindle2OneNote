@@ -5,36 +5,25 @@ using System.Collections.Generic;
 
 using Windows.Web.Http.Headers;
 using Windows.System;
-using Windows.Security.Authentication.Web.Core;
-using Windows.UI.ApplicationSettings;
 using Windows.Data.Json;
 using Windows.Web.Http;
-using Windows.Security.Credentials;
-using Windows.Storage;
+
 using Windows.Storage.Streams;
 
 
 namespace Kindle2OneNote
 {
-    public struct Account
-    {
-        public string UserName { get; set; }
-        public string Picture { get; set; }
-    }
-
     public sealed class OneNote
     {
         private static volatile OneNote instance = null;
         private static object syncRoot = new Object();
-        private static WebAccount account;
-        private static WebAccountProvider provider;
+
         private static HttpClient client;
         public List<Notebook> Notebooks { get; private set; }
         public string SectionId { get; set; }
 
         private static readonly int notFound = -1;
         private static readonly string valueKey = @"value";
-        private static readonly string scope = @"office.onenote, office.onenote_update_by_app";
         private static readonly Uri baseUri = new Uri(@"https://www.onenote.com/api/v1.0/me/notes/");
 
         private OneNote()
@@ -62,105 +51,6 @@ namespace Kindle2OneNote
 
                 return instance;
             }
-        }
-
-        public void SignIn()
-        {
-            AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested += BuildPaneAsync;
-            AccountsSettingsPane.Show();
-        }
-
-        public bool IsSignedIn()
-        {
-            string userId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
-            return userId != null;
-        }
-
-        private async Task LoadAccount()
-        {
-            string providerId = ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"]?.ToString();
-            string accountId = ApplicationData.Current.LocalSettings.Values["CurrentUserId"]?.ToString();
-
-            if (null == providerId || null == accountId)
-            {
-                return;
-            }
-
-            provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(providerId);
-            account = await WebAuthenticationCoreManager.FindAccountAsync(provider, accountId);
-        }
-
-        private async void BuildPaneAsync(AccountsSettingsPane s, AccountsSettingsPaneCommandsRequestedEventArgs e)
-        {
-            var deferral = e.GetDeferral();
-
-            var msaProvider = await WebAuthenticationCoreManager.FindAccountProviderAsync("https://login.microsoft.com", "consumers");
-            var command = new WebAccountProviderCommand(msaProvider, GetMsaTokenAsync);
-            e.WebAccountProviderCommands.Add(command);
-
-            deferral.Complete();
-            AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested -= BuildPaneAsync;
-        }
-
-        private async void GetMsaTokenAsync(WebAccountProviderCommand command)
-        {
-            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
-            var page = (MainPage)frame.Content;
-            WebTokenRequest request = new WebTokenRequest(command.WebAccountProvider, scope);
-            WebTokenRequestResult result = await WebAuthenticationCoreManager.RequestTokenAsync(request);
-            if (result.ResponseStatus == WebTokenRequestStatus.Success)
-            {
-                account = result.ResponseData[0].WebAccount;
-                StoreWebAccount();
-                await LoadNotebooks();
-                page.OnSignInStatus(true);
-            }
-            else
-            {
-                page.OnSignInStatus(false);
-            }
-        }
-
-        private void StoreWebAccount()
-        {
-            ApplicationData.Current.LocalSettings.Values["CurrentUserId"] = account.Id;
-            ApplicationData.Current.LocalSettings.Values["CurrentUserProviderId"] = account.WebAccountProvider.Id;
-        }
-
-        private async Task<string> GetTokenSilentlyAsync()
-        {
-            await LoadAccount();
-            WebTokenRequest request = new WebTokenRequest(provider, scope);
-            WebTokenRequestResult result = await WebAuthenticationCoreManager.GetTokenSilentlyAsync(request, account);
-            if (result.ResponseStatus == WebTokenRequestStatus.UserInteractionRequired)
-            {
-                // Unable to get a token silently - you'll need to show the UI
-                return null;
-            }
-            else if (result.ResponseStatus == WebTokenRequestStatus.Success)
-            {
-                // Success
-                return result.ResponseData[0].Token;
-            }
-            else
-            {
-                // Other error 
-                return null;
-            }
-        }
-
-        public async Task SignOut()
-        {
-            if (!IsSignedIn())
-                return;
-            
-            await account.SignOutAsync();
-            ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserProviderId");
-            ApplicationData.Current.LocalSettings.Values.Remove("CurrentUserId");
-
-            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
-            var page = (MainPage)frame.Content;
-            page.OnSignInStatus(false);
         }
 
         public async Task LoadNotebooks()
@@ -204,7 +94,7 @@ namespace Kindle2OneNote
         private async Task<string> QuerySections()
         {
             var queryApi = new Uri(baseUri, @"sections");
-            string token = await GetTokenSilentlyAsync();
+            string token = await Account.GetTokenSilentlyAsync();
             if (token == null)
             {
                 return null;
@@ -263,7 +153,7 @@ namespace Kindle2OneNote
 
         private async Task<List<NotePage>> QueryPagesInSection(string sectionId)
         {
-            string token = await GetTokenSilentlyAsync();
+            string token = await Account.GetTokenSilentlyAsync();
             var queryApi = new Uri(baseUri, String.Format("sections/{0}/pages", sectionId));
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
 
@@ -291,7 +181,7 @@ namespace Kindle2OneNote
 
         private async void CreateNewPageInSection(string sectionId, BookWithClippings book)
         {
-            string token = await GetTokenSilentlyAsync();
+            string token = await Account.GetTokenSilentlyAsync();
             string requestBody = NoteRequest.CreatePage(book);
             var createApi = new Uri(baseUri, String.Format("sections/{0}/pages", sectionId));
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
@@ -317,7 +207,7 @@ namespace Kindle2OneNote
             var reqString = jsonArray.ToString();
             var appendApi = new Uri(baseUri, String.Format("pages/{0}/content", pageId));
             var request = new HttpRequestMessage(method, appendApi);
-            string token = await GetTokenSilentlyAsync();
+            string token = await Account.GetTokenSilentlyAsync();
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
             request.Content = new HttpStringContent(reqString, UnicodeEncoding.Utf8, @"application/json");
             HttpResponseMessage httpResponse = await client.SendRequestAsync(request);

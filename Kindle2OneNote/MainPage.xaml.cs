@@ -54,7 +54,7 @@ namespace Kindle2OneNote
         private void signInButton_Loaded(object sender, RoutedEventArgs e)
         {
             var signInButton = sender as Button;
-            if (!OneNote.Instance.IsSignedIn())
+            if (!Account.IsSignedIn())
             {
                 signInButton.Content = "Sign In";
             }
@@ -66,9 +66,9 @@ namespace Kindle2OneNote
 
         private async void signInButton_Click(object sender, RoutedEventArgs e)
         {
-            if (OneNote.Instance.IsSignedIn())
+            if (Account.IsSignedIn())
             {
-                await OneNote.Instance.SignOut();
+                await Account.SignOut();
                 notebookComboBox.ItemsSource = null;
                 sectionComboBox.ItemsSource = null;
             }
@@ -76,7 +76,7 @@ namespace Kindle2OneNote
             {
                 notebookRing.IsActive = true;
                 sectionRing.IsActive = true;
-                OneNote.Instance.SignIn();
+                Account.SignIn();
             }
         }
 
@@ -113,7 +113,7 @@ namespace Kindle2OneNote
         private void userText_Loaded(object sender, RoutedEventArgs e)
         {
             var userText = sender as TextBlock;
-            if (OneNote.Instance.IsSignedIn())
+            if (Account.IsSignedIn())
             {
                 userText.Text = "Signed in";
             }
@@ -162,7 +162,7 @@ namespace Kindle2OneNote
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            if (OneNote.Instance.IsSignedIn())
+            if (Account.IsSignedIn())
             {
                 notebookRing.IsActive = true;
                 sectionRing.IsActive = true;
