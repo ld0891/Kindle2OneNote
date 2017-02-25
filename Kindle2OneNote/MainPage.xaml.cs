@@ -34,12 +34,13 @@ namespace Kindle2OneNote
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
-        public void OnSignInStatus(bool isSuccess)
+        public async void OnSignInStatus(bool isSuccess)
         {
             if (isSuccess)
             {
                 userText.Text = "Signed in";
                 signInButton.Content = "Sign Out";
+                await OneNote.Instance.LoadNotebooks();
                 DisplayNotebooks();
                 notebookRing.IsActive = false;
                 sectionRing.IsActive = false;
@@ -85,7 +86,7 @@ namespace Kindle2OneNote
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
             folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
             folderPicker.FileTypeFilter.Add("*");
-            Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
+            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder == null)
             {
                 return;
@@ -133,7 +134,7 @@ namespace Kindle2OneNote
         private void notebookComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var notebooksComboBox = sender as ComboBox;
-            Notebook notebook = notebooksComboBox.SelectedItem as Notebook;
+            var notebook = notebooksComboBox.SelectedItem as Notebook;
             if (notebook == null)
             {
                 return;
@@ -146,11 +147,13 @@ namespace Kindle2OneNote
         private void sectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var sectionComboBox = sender as ComboBox;
-            Section section = sectionComboBox.SelectedItem as Section;
+            var section = sectionComboBox.SelectedItem as Section;
             if (section == null)
             {
                 return;
             }
+
+            OneNote.Instance.SectionId = section.Id;
         }
 
         private void notebookComboBox_Loaded(object sender, RoutedEventArgs e)

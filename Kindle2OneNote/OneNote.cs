@@ -8,6 +8,7 @@ using Windows.System;
 using Windows.Data.Json;
 using Windows.Web.Http;
 
+using Windows.Storage;
 using Windows.Storage.Streams;
 
 
@@ -18,20 +19,39 @@ namespace Kindle2OneNote
         private static volatile OneNote instance = null;
         private static object syncRoot = new Object();
 
-        private static HttpClient client;
-        public List<Notebook> Notebooks { get; private set; }
-        public string SectionId { get; set; }
-
         private static readonly int notFound = -1;
         private static readonly string valueKey = @"value";
+        private static readonly string sectionKey = @"TargetSectionID";
         private static readonly Uri baseUri = new Uri(@"https://www.onenote.com/api/v1.0/me/notes/");
+
+        private static HttpClient client;
+        public List<Notebook> Notebooks { get; private set; }
+        public String SectionId
+        {
+            get
+            {
+                return SectionId;
+            }
+
+            set
+            {
+                SectionId = value;
+                ApplicationData.Current.LocalSettings.Values[sectionKey] = SectionId;
+            }
+        }
+
 
         private OneNote()
         {
-            Notebooks = new List<Notebook>();
             client = new HttpClient();
+            Notebooks = new List<Notebook>();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey(sectionKey))
+            {
+                SectionId = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
+            }
         }
 
         public static OneNote Instance
@@ -60,7 +80,7 @@ namespace Kindle2OneNote
             Notebooks = BuildNotebooksFromSections(sections);
         }
 
-        public async void UploadClippingsToSection(string sectionId, List<BookWithClippings> books)
+        public async void UploadClippings(List<BookWithClippings> books)
         {
             if (!books.Any())
             {
@@ -69,7 +89,7 @@ namespace Kindle2OneNote
 
             bool bFound = false;
             string targetName = "";
-            List<NotePage> pages = await QueryPagesInSection(sectionId);
+            List<NotePage> pages = await QueryPagesInSection(SectionId);
             foreach (BookWithClippings book in books)
             {
                 bFound = false;
@@ -86,9 +106,15 @@ namespace Kindle2OneNote
 
                 if (!bFound)
                 {
-                    CreateNewPageInSection(sectionId, book);
+                    CreateNewPageInSection(SectionId, book);
                 }
             }
+        }
+
+        public void Reset()
+        {
+            SectionId = null;
+            ApplicationData.Current.LocalSettings.Values.Remove(sectionKey);
         }
 
         private async Task<string> QuerySections()

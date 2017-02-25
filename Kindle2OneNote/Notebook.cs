@@ -11,15 +11,17 @@ namespace Kindle2OneNote
     {
         private const string idKey = "id";
         private const string nameKey = "name";
-
+        
         public string Id { get; set; }
         public string Name { get; set; }
+        public bool Selected { get; set; }
         public List<Section> Sections { get; set; }
 
         public Notebook()
         {
             Id = "";
             Name = "";
+            Selected = false;
             Sections = new List<Section>();
         }
 
