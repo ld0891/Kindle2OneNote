@@ -41,6 +41,6 @@
         <ProgressRing x:Name="notebookRing" Grid.Column="4" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <ProgressRing x:Name="sectionRing" Grid.Column="4" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <Button x:Name="selectFileButton" Grid.Row="8" Grid.Column="4" Content="Select Clipping File" Grid.ColumnSpan="3" Click="selectFileButton_Click"/>
-        <Button x:Name="autoplayButton" Grid.Row="10" Grid.Column="4" Content="Setup AutoPlay" Grid.ColumnSpan="3"/>
+        <Button x:Name="autoplayButton" Grid.Row="10" Grid.Column="4" Content="Setup AutoPlay" Grid.ColumnSpan="3" Click="autoplayButton_Click"/>
     </Grid>
 </Page>
