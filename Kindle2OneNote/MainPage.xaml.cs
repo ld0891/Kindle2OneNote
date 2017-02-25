@@ -97,9 +97,6 @@ namespace Kindle2OneNote
 
             FileManager.Instance.OnNewFolderSelected(folder);
             RefreshSelectFileButtonStatus();
-
-            StorageFile file = await folder.GetFileAsync(@"My Clippings.txt");
-            string fileContent = await Windows.Storage.FileIO.ReadTextAsync(file);
         }
 
         private async void backupFolderText_Loaded(object sender, RoutedEventArgs e)
@@ -203,9 +200,25 @@ namespace Kindle2OneNote
             RefreshSelectFileButtonStatus();
         }
 
-        private void selectFileButton_Click(object sender, RoutedEventArgs e)
+        private async void selectFileButton_Click(object sender, RoutedEventArgs e)
         {
-
+            var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
+            filePicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+            filePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            filePicker.FileTypeFilter.Add(".txt");
+            StorageFile file = await filePicker.PickSingleFileAsync();
+            if (file == null)
+            {
+                return;
+            }
+            
+            string fileContent = await FileManager.Instance.ReadFileContent(file);
+            List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
+            OneNote.Instance.UploadClippings(books);
+            if (await FileManager.Instance.BackupFile(file))
+            {
+                FileManager.Instance.DeleteFile(file);
+            }
         }
 
         private void RefreshSelectFileButtonStatus()

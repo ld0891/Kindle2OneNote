@@ -65,10 +65,16 @@ namespace Kindle2OneNote
         public async Task<bool> BackupFile(string filePath)
         {
             StorageFile file = await Windows.Storage.StorageFile.GetFileFromPathAsync(filePath).AsTask();
+            bool result = await BackupFile(file);
+            return result;
+        }
+
+        public async Task<bool> BackupFile(StorageFile file)
+        {
             StorageFolder folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderToken);
             if (file == null || folder == null)
                 return false;
-            
+
             string backupName = string.Concat(
                 file.DisplayName,
                 @"_",
@@ -98,6 +104,17 @@ namespace Kindle2OneNote
             return content;
         }
 
+        public async Task<string> ReadFileContent(StorageFile file)
+        {
+            if (file == null || !file.IsAvailable)
+            {
+                return null;
+            }
+            
+            string content = await FileIO.ReadTextAsync(file);
+            return content;
+        }
+
         private async Task<bool> FileExists(string filePath)
         {
             try
@@ -111,9 +128,8 @@ namespace Kindle2OneNote
             }
         }
 
-        public async void DeleteFile(string filePath)
+        public async void DeleteFile(StorageFile file)
         {
-            StorageFile file = await Windows.Storage.StorageFile.GetFileFromPathAsync(filePath).AsTask();
             if (file == null)
                 return;
             await file.DeleteAsync();
