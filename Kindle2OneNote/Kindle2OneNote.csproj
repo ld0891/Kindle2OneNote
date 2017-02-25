@@ -101,12 +101,13 @@
     <Compile Include="Clipping.cs" />
     <Compile Include="ClippingParser.cs" />
     <Compile Include="FileManager.cs" />
-    <Compile Include="KindleManager.cs" />
+    <Compile Include="Kindle.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Notebook.cs" />
     <Compile Include="NoteRequest.cs" />
+    <Compile Include="Notification.cs" />
     <Compile Include="OneNote.cs" />
     <Compile Include="NotePage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

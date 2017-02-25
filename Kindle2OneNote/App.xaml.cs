@@ -102,5 +102,15 @@ namespace Kindle2OneNote
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }
+
+        protected async override void OnFileActivated(FileActivatedEventArgs args)
+        {
+            if (args.Verb == "send")
+            {
+
+            }
+
+            base.OnFileActivated(args);
+        }
     }
 }
