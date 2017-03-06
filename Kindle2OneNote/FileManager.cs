@@ -62,6 +62,11 @@ namespace Kindle2OneNote
             Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderToken, folder);
         }
 
+        public void Reset()
+        {
+            Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(folderToken);
+        }
+
         public async Task<bool> BackupFile(string filePath)
         {
             StorageFile file = await Windows.Storage.StorageFile.GetFileFromPathAsync(filePath).AsTask();

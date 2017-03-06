@@ -88,6 +88,7 @@ namespace Kindle2OneNote
                 notebookComboBox.ItemsSource = null;
                 sectionComboBox.ItemsSource = null;
                 OneNote.Instance.Reset();
+                FileManager.Instance.Reset();
             }
             else
             {
@@ -109,6 +110,16 @@ namespace Kindle2OneNote
             }
 
             FileManager.Instance.OnNewFolderSelected(folder);
+            var folderTextBlock = sender as TextBlock;
+            string folderPath = await FileManager.Instance.GetBackupFolderPath();
+            if (folderPath == null)
+            {
+                folderTextBlock.Text = "Not set yet";
+            }
+            else
+            {
+                folderTextBlock.Text = folderPath;
+            }
             RefreshSelectFileButtonStatus();
         }
 
