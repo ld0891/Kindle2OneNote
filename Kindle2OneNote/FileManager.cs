@@ -88,7 +88,7 @@ namespace Kindle2OneNote
 
             try
             {
-                await file.MoveAsync(folder, backupName);
+                await file.CopyAsync(folder, backupName);
             }
             catch
             {
