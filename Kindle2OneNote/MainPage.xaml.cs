@@ -89,6 +89,7 @@ namespace Kindle2OneNote
                 sectionComboBox.ItemsSource = null;
                 OneNote.Instance.Reset();
                 FileManager.Instance.Reset();
+                RefreshBackupFolderText();
             }
             else
             {
@@ -110,16 +111,7 @@ namespace Kindle2OneNote
             }
 
             FileManager.Instance.OnNewFolderSelected(folder);
-            var folderTextBlock = sender as TextBlock;
-            string folderPath = await FileManager.Instance.GetBackupFolderPath();
-            if (folderPath == null)
-            {
-                folderTextBlock.Text = "Not set yet";
-            }
-            else
-            {
-                folderTextBlock.Text = folderPath;
-            }
+            RefreshBackupFolderText();
             RefreshSelectFileButtonStatus();
         }
 
@@ -211,6 +203,7 @@ namespace Kindle2OneNote
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            Kindle.Instance.OnNewDeviceConnected();
             uploadRing.IsActive = true;
             uploadRing.Visibility = Visibility.Collapsed;
             uploadNotificationTextBlock.Visibility = Visibility.Collapsed;
@@ -254,6 +247,19 @@ namespace Kindle2OneNote
             else
             {
                 selectFileButton.IsEnabled = true;
+            }
+        }
+
+        private async void RefreshBackupFolderText()
+        {
+            string folderPath = await FileManager.Instance.GetBackupFolderPath();
+            if (folderPath == null)
+            {
+                backupFolderText.Text = "Not set yet";
+            }
+            else
+            {
+                backupFolderText.Text = folderPath;
             }
         }
 
