@@ -39,6 +39,7 @@ namespace Kindle2OneNote
             StorageFile file = await GetClippingFile();
             if (file == null)
             {
+                Notification.Instance.Show("Error", "Clipping file not found.");
                 return;
             }
 
@@ -51,6 +52,9 @@ namespace Kindle2OneNote
             {
                 return;
             }
+            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
+            var mainPage = (MainPage)frame.Content;
+            mainPage.OnUploadStart();
 
             string fileContent = await FileManager.Instance.ReadFileContent(file);
             List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
@@ -59,6 +63,8 @@ namespace Kindle2OneNote
             {
                 FileManager.Instance.DeleteFile(file);
             }
+            
+            mainPage.OnUploadStatus(true);
         }
 
         private async Task<StorageFile> GetClippingFile()

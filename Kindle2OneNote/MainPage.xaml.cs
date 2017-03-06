@@ -54,6 +54,19 @@ namespace Kindle2OneNote
             RefreshSelectFileButtonStatus();
         }
 
+        public void OnUploadStatus(bool isSuccess)
+        {
+            uploadRing.Visibility = Visibility.Collapsed;
+            uploadNotificationTextBlock.Visibility = Visibility.Collapsed;
+            Notification.Instance.Show("Success", "Successfully uploaded your clippings");
+        }
+
+        public void OnUploadStart()
+        {
+            uploadRing.Visibility = Visibility.Visible;
+            uploadNotificationTextBlock.Visibility = Visibility.Visible;
+        }
+
         private void signInButton_Loaded(object sender, RoutedEventArgs e)
         {
             var signInButton = sender as Button;
@@ -187,6 +200,10 @@ namespace Kindle2OneNote
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            uploadRing.IsActive = true;
+            uploadRing.Visibility = Visibility.Collapsed;
+            uploadNotificationTextBlock.Visibility = Visibility.Collapsed;
+
             if (Account.IsSignedIn())
             {
                 notebookRing.IsActive = true;

@@ -90,26 +90,26 @@ namespace Kindle2OneNote
                 return;
             }
 
-            bool bFound = false;
+            bool bookExists = false;
             string targetName = "";
             List<NotePage> pages = await QueryPagesInSection(targetSectionId);
             foreach (BookWithClippings book in books)
             {
-                bFound = false;
+                bookExists = false;
                 targetName = book.GeneratePageName();
                 foreach (NotePage page in pages)
                 {
-                    if (String.Equals(page.Name, targetName))
+                    if (page.Name == targetName)
                     {
-                        bFound = true;
-                        AppendClippingsToPage(page.Id, book.Clippings);
+                        bookExists = true;
+                        await AppendClippingsToPage(page.Id, book.Clippings);
                         break;
                     }
                 }
 
-                if (!bFound)
+                if (!bookExists)
                 {
-                    CreateNewPageInSection(targetSectionId, book);
+                    await CreateNewPageInSection(targetSectionId, book);
                 }
             }
         }
@@ -229,7 +229,7 @@ namespace Kindle2OneNote
             return notePages;
         }
 
-        private async void CreateNewPageInSection(string sectionId, BookWithClippings book)
+        private async Task CreateNewPageInSection(string sectionId, BookWithClippings book)
         {
             string token = await Account.GetToken();
             string requestBody = NoteRequest.CreatePage(book);
@@ -242,7 +242,7 @@ namespace Kindle2OneNote
             string resp = await httpResponse.Content.ReadAsStringAsync();
         }
 
-        private async void AppendClippingsToPage(string pageId, List<Clipping> clippings)
+        private async Task AppendClippingsToPage(string pageId, List<Clipping> clippings)
         {
             string requestBody = NoteRequest.UpdatePage(clippings);
             var jsonObject = new JsonObject();
