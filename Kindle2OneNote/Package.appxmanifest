@@ -23,7 +23,7 @@
       <Extensions>
         <uap:Extension Category="windows.autoPlayContent">
           <uap:AutoPlayContent>
-            <uap:LaunchAction Verb="send" ActionDisplayName="Send Your Clippings To OneNote" ContentEvent="StorageOnArrival" />
+            <uap:LaunchAction Verb="send" ActionDisplayName="Send your clippings to OneNote" ContentEvent="StorageOnArrival" />
           </uap:AutoPlayContent>
         </uap:Extension>
       </Extensions>

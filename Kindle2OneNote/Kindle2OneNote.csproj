@@ -17,7 +17,10 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>Kindle2OneNote_StoreKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>EBB497963794BD801E5C1E495FAA6466BA6E7E1F</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>A32154F220D12564826DAF400FCE94FD9FFD3CEA</PackageCertificateThumbprint>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
