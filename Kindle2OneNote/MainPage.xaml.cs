@@ -203,7 +203,6 @@ namespace Kindle2OneNote
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Kindle.Instance.OnNewDeviceConnected();
             uploadRing.IsActive = true;
             uploadRing.Visibility = Visibility.Collapsed;
             uploadNotificationTextBlock.Visibility = Visibility.Collapsed;
