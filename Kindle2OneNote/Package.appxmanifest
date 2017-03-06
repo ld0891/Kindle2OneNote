@@ -21,6 +21,13 @@
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="txt">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.txt</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
         <uap:Extension Category="windows.autoPlayContent">
           <uap:AutoPlayContent>
             <uap:LaunchAction Verb="send" ActionDisplayName="Send your clippings to OneNote" ContentEvent="StorageOnArrival" />

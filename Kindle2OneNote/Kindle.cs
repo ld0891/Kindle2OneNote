@@ -13,7 +13,7 @@ namespace Kindle2OneNote
         private static volatile Kindle instance = null;
         private static object syncRoot = new Object();
 
-        private static readonly String clippingFilePath = @"documents/My Clippings.txt";
+        private static readonly string clippingFilePath = @"documents\My Clippings.txt";
 
         private Kindle() { }
 
@@ -39,7 +39,7 @@ namespace Kindle2OneNote
             StorageFile file = await GetClippingFile();
             if (file == null)
             {
-                Notification.Instance.Show("Error", "Clipping file not found.");
+                Notification.Instance.Show("Error", "No kindle or clipping file not found.");
                 return;
             }
 
