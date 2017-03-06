@@ -34,7 +34,34 @@ namespace Kindle2OneNote
             }
         }
 
-        public async Task<StorageFile> GetClippingFile()
+        public async void OnNewDeviceConnected()
+        {
+            StorageFile file = await GetClippingFile();
+            if (file == null)
+            {
+                return;
+            }
+
+            SendClippingsToOneNote(file);
+        }
+
+        public async void SendClippingsToOneNote(StorageFile file)
+        {
+            if (file == null)
+            {
+                return;
+            }
+
+            string fileContent = await FileManager.Instance.ReadFileContent(file);
+            List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
+            OneNote.Instance.UploadClippings(books);
+            if (await FileManager.Instance.BackupFile(file))
+            {
+                FileManager.Instance.DeleteFile(file);
+            }
+        }
+
+        private async Task<StorageFile> GetClippingFile()
         {
             StorageFile file = null;
             StorageFolder externalDevices = Windows.Storage.KnownFolders.RemovableDevices;

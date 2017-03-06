@@ -103,11 +103,11 @@ namespace Kindle2OneNote
             deferral.Complete();
         }
 
-        protected async override void OnFileActivated(FileActivatedEventArgs args)
+        protected override void OnFileActivated(FileActivatedEventArgs args)
         {
             if (args.Verb == "send")
             {
-
+                Kindle.Instance.OnNewDeviceConnected();
             }
 
             base.OnFileActivated(args);
