@@ -14,9 +14,10 @@ namespace Kindle2OneNote
         private static object syncRoot = new Object();
 
         private static readonly int notFound = -1;
+        private static readonly string timeFormat = "yyyy年M月d日dddd tth:m:s";
         private static readonly char[] byteOrderMark = new char[] { '\uFEFF' };
         private static readonly string pattern =
-    @"(?<title>.*) \((?<author>.*?)\)\r\n- .*?(?<page>\d+) \| Location (?<from>\d+)-(?<to>\d+) \| Added on (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
+    @"(?<title>.*) \((?<author>.*?)\)\r\n- .*?(?<page>\d+).*?(?<from>\d+)-(?<to>\d+).*? \| (Added on|添加于) (?<time>.*)\r\n\r\n(?<content>.*)\r\n={10}";
 
         private ClippingParser() { }
 
@@ -53,7 +54,7 @@ namespace Kindle2OneNote
                 clip.Page = Convert.ToUInt32(match.Groups["page"].Value);
                 clip.LocationFrom = Convert.ToUInt32(match.Groups["from"].Value);
                 clip.LocationTo = Convert.ToUInt32(match.Groups["to"].Value);
-                clip.AddTime = DateTime.Parse(match.Groups["time"].Value);
+                clip.AddTime = ParseDateTimeString(match.Groups["time"].Value);
                 clip.Content = match.Groups["content"].Value;
                 
                 title = match.Groups["title"].Value.TrimStart(byteOrderMark);
@@ -75,6 +76,21 @@ namespace Kindle2OneNote
             }
 
             return books;
+        }
+
+        private DateTime ParseDateTimeString(string dateTime)
+        {
+            DateTime dt;
+            if (DateTime.TryParse(dateTime, out dt))
+            {
+                return dt;
+            }
+            else
+            {
+                dt = DateTime.ParseExact(dateTime, timeFormat, new System.Globalization.CultureInfo("zh-CN"));
+            }
+
+            return dt;
         }
     }
 }

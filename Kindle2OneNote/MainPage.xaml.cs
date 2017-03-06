@@ -187,6 +187,20 @@ namespace Kindle2OneNote
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
+            filePicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+            filePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+            filePicker.FileTypeFilter.Add(".txt");
+            StorageFile file = await filePicker.PickSingleFileAsync();
+            if (file == null)
+            {
+                return;
+            }
+
+            string fileContent = await FileManager.Instance.ReadFileContent(file);
+            List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
+            return;
+
             if (Account.IsSignedIn())
             {
                 notebookRing.IsActive = true;
