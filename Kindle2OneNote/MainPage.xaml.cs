@@ -30,7 +30,7 @@ namespace Kindle2OneNote
         {
             this.InitializeComponent();
             
-            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 320);
+            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 300);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
