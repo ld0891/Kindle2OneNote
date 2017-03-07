@@ -26,12 +26,15 @@ namespace Kindle2OneNote
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private Presenter _presenter = new Presenter();
         public MainPage()
         {
             this.InitializeComponent();
             
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 300);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
+
+            this.DataContext = _presenter;
         }
 
         public async void OnSignInStatus(bool isSuccess)
@@ -89,43 +92,12 @@ namespace Kindle2OneNote
                 sectionComboBox.ItemsSource = null;
                 OneNote.Instance.Reset();
                 FileManager.Instance.Reset();
-                RefreshBackupFolderText();
             }
             else
             {
                 notebookRing.IsActive = true;
                 sectionRing.IsActive = true;
                 Account.SignIn();
-            }
-        }
-
-        private async void selectButton_Click(object sender, RoutedEventArgs e)
-        {
-            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
-            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-            folderPicker.FileTypeFilter.Add("*");
-            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
-            if (folder == null)
-            {
-                return;
-            }
-
-            FileManager.Instance.OnNewFolderSelected(folder);
-            RefreshBackupFolderText();
-            RefreshSelectFileButtonStatus();
-        }
-
-        private async void backupFolderText_Loaded(object sender, RoutedEventArgs e)
-        {
-            var folderTextBlock = sender as TextBlock;
-            string folderPath = await FileManager.Instance.GetBackupFolderPath();
-            if (folderPath == null)
-            {
-                folderTextBlock.Text = "Not set yet";
-            }
-            else
-            {
-                folderTextBlock.Text = folderPath;
             }
         }
 
@@ -246,19 +218,6 @@ namespace Kindle2OneNote
             else
             {
                 selectFileButton.IsEnabled = true;
-            }
-        }
-
-        private async void RefreshBackupFolderText()
-        {
-            string folderPath = await FileManager.Instance.GetBackupFolderPath();
-            if (folderPath == null)
-            {
-                backupFolderText.Text = "Not set yet";
-            }
-            else
-            {
-                backupFolderText.Text = folderPath;
             }
         }
 

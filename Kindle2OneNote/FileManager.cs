@@ -35,36 +35,36 @@ namespace Kindle2OneNote
 
         public async Task<string> GetBackupFolderPath()
         {
-            StorageFolder folder;
-            try
+            if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(folderToken))
             {
-                folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderToken);
-            }
-            catch
-            {
-                return null;
-            }
-            if (folder == null)
-            {
-                return null;
+                StorageFolder folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderToken);
+                return folder.Path;
             }
 
-            return folder.Path;
+            return null;
         }
 
-        public void OnNewFolderSelected(StorageFolder folder)
+        public async Task<string> SelectBackupFolder()
         {
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            folderPicker.FileTypeFilter.Add("*");
+            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder == null)
             {
-                return;
+                return null;
             }
 
             Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderToken, folder);
+            return folder.Path;
         }
 
         public void Reset()
         {
-            Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(folderToken);
+            if (Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.ContainsItem(folderToken))
+            {
+                Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(folderToken);
+            }
         }
 
         public async Task<bool> BackupFile(string filePath)
