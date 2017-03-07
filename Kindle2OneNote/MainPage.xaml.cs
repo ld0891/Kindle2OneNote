@@ -69,7 +69,6 @@ namespace Kindle2OneNote
         private void RefreshSelectFileButtonStatus()
         {
             if (!Account.IsSignedIn() ||
-                OneNote.Instance.TargetSectionId == null ||
                 FileManager.Instance.GetBackupFolderPath() == null)
             {
                 selectFileButton.IsEnabled = false;

@@ -34,40 +34,7 @@ namespace Kindle2OneNote
             }
         }
 
-        public async void OnNewDeviceConnected()
-        {
-            StorageFile file = await GetClippingFile();
-            if (file == null)
-            {
-                Notification.Instance.Show("Error", "No kindle or clipping file not found.");
-                return;
-            }
-
-            SendClippingsToOneNote(file);
-        }
-
-        public async void SendClippingsToOneNote(StorageFile file)
-        {
-            if (file == null)
-            {
-                return;
-            }
-            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
-            var mainPage = (MainPage)frame.Content;
-            mainPage.OnUploadStart();
-
-            string fileContent = await FileManager.Instance.ReadFileContent(file);
-            List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
-            OneNote.Instance.UploadClippings(books);
-            if (await FileManager.Instance.BackupFile(file))
-            {
-                FileManager.Instance.DeleteFile(file);
-            }
-            
-            mainPage.OnUploadStatus(true);
-        }
-
-        private async Task<StorageFile> GetClippingFile()
+        public async Task<StorageFile> GetClippingFile()
         {
             StorageFile file = null;
             StorageFolder externalDevices = Windows.Storage.KnownFolders.RemovableDevices;

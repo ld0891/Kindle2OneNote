@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.Storage;
 
 namespace Kindle2OneNote
 {
@@ -18,11 +19,18 @@ namespace Kindle2OneNote
         private ObservableCollection<Section> _sections;
         private Section _selectedSection;
 
+        private static readonly string sectionKey = @"TargetSectionID";
         private static volatile Presenter instance = null;
         private static object syncRoot = new Object();
 
         private Presenter()
         {
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey(sectionKey))
+            {
+                _selectedSection = new Section();
+                _selectedSection.Id = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
+            }
+
             if (Account.IsSignedIn())
             {
                 OnSignInComplete();
@@ -126,6 +134,8 @@ namespace Kindle2OneNote
             {
                 _selectedSection = value;
                 RaisePropertyChangedEvent("SelectedSection");
+                if (_selectedSection != null)
+                    ApplicationData.Current.LocalSettings.Values[sectionKey] = _selectedSection.Id;
             }
         }
 
@@ -145,11 +155,6 @@ namespace Kindle2OneNote
             if (Account.IsSignedIn())
             {
                 await Account.SignOut();
-                /*
-                notebookComboBox.ItemsSource = null;
-                sectionComboBox.ItemsSource = null;
-                */
-                OneNote.Instance.Reset();
                 FileManager.Instance.Reset();
                 _notebooks.Clear();
                 _selectedBook = null;
@@ -157,10 +162,6 @@ namespace Kindle2OneNote
             }
             else
             {
-                /*
-                notebookRing.IsActive = true;
-                sectionRing.IsActive = true;
-                */
                 Account.SignIn();
             }
         }
@@ -183,7 +184,7 @@ namespace Kindle2OneNote
         private async void SelectClippingFile()
         {
             Windows.Storage.StorageFile clippingFile = await FileManager.Instance.SelectFile();
-            Kindle.Instance.SendClippingsToOneNote(clippingFile);
+            SendClippingsToOneNote(clippingFile);
         }
 
         public ICommand SetupAutoPlayCommand
@@ -207,7 +208,9 @@ namespace Kindle2OneNote
 
         private async void RefreshNotebook()
         {
-            Notebooks = await OneNote.Instance.LoadNotebooks();
+            List<Notebook> notebooks = await OneNote.Instance.LoadNotebooks();
+            MarkSelectedNotebookAndSection(notebooks);
+            Notebooks = notebooks;
             if (!Notebooks.Any())
                 return;
 
@@ -220,6 +223,53 @@ namespace Kindle2OneNote
                 }
             }
             SelectedBook = Notebooks.First();
+        }
+        
+        private void MarkSelectedNotebookAndSection(List<Notebook> notebooks)
+        {
+            if (SelectedSection == null || !notebooks.Any())
+            {
+                return;
+            }
+
+            foreach (Notebook book in notebooks)
+            {
+                foreach (Section section in book.Sections)
+                {
+                    if (section.Id == SelectedSection.Id)
+                    {
+                        section.Selected = true;
+                        book.Selected = true;
+                        return;
+                    }
+                }
+            }
+        }
+
+        private async void SendClippingsToOneNote(StorageFile file)
+        {
+            if (file == null)
+                return;
+
+            string fileContent = await FileManager.Instance.ReadFileContent(file);
+            List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
+            OneNote.Instance.UploadClippingsToSection(books, SelectedSection);
+            if (await FileManager.Instance.BackupFile(file))
+            {
+                FileManager.Instance.DeleteFile(file);
+            }
+        }
+        
+        public async void OnNewDeviceConnected()
+        {
+            StorageFile file = await Kindle.Instance.GetClippingFile();
+            if (file == null)
+            {
+                Notification.Instance.Show("Error", "No kindle or clipping file found.");
+                return;
+            }
+
+            SendClippingsToOneNote(file);
         }
     }
 }

@@ -107,7 +107,6 @@ namespace Kindle2OneNote
         {
             if (args.Verb == "send")
             {
-                Kindle.Instance.OnNewDeviceConnected();
             }
 
             base.OnFileActivated(args);
