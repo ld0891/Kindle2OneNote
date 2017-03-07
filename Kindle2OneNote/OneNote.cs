@@ -75,12 +75,13 @@ namespace Kindle2OneNote
             }
         }
 
-        public async Task LoadNotebooks()
+        public async Task<List<Notebook>> LoadNotebooks()
         {
             string response = await QuerySections();
             List<Section> sections = ParseSectionResponse(response);
             Notebooks = BuildNotebooksFromSections(sections);
             MarkSelectedNotebookAndSection();
+            return Notebooks;
         }
 
         public async void UploadClippings(List<BookWithClippings> books)

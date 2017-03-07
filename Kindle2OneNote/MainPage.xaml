@@ -34,7 +34,7 @@
         <TextBlock Grid.Row="6" Grid.Column="0" Text="Section:" TextAlignment="Right" VerticalAlignment="Center"/>
         <TextBlock x:Name="userText" Grid.Row="0" Grid.Column="2" Text="{Binding UserStatusText}" VerticalAlignment="Center"/>
         <TextBlock x:Name="backupFolderText" Grid.Row="2" Grid.Column="2" Text="{Binding BackupFolderPath}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-        <ComboBox x:Name="notebookComboBox" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" SelectionChanged="notebookComboBox_SelectionChanged" Loaded="notebookComboBox_Loaded"/>
+        <ComboBox x:Name="notebookComboBox" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Notebooks}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedBook}" SelectionChanged="notebookComboBox_SelectionChanged"/>
         <ComboBox x:Name="sectionComboBox" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionChanged="sectionComboBox_SelectionChanged"/>
         <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="{Binding SignInButtonText}" Command="{Binding SignInOrOutCommand}"/>
         <Button x:Name="selectButton" Grid.Row="2" Grid.Column="4" Content="Select Folder" Command="{Binding SelectBackupFolderCommand}"/>

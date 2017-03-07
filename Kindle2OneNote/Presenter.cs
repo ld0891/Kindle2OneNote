@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace Kindle2OneNote
         private string _backupFolderPath;
         private string _userStatusText;
         private string _signInButtonText;
+        private ObservableCollection<Notebook> _notebooks;
+        private Notebook _selectedBook;
 
         private static volatile Presenter instance = null;
         private static object syncRoot = new Object();
@@ -68,6 +71,26 @@ namespace Kindle2OneNote
             }
         }
 
+        public IEnumerable<Notebook> Notebooks
+        {
+            get { return _notebooks; }
+            set
+            {
+                _notebooks = new ObservableCollection<Notebook>(value);
+                RaisePropertyChangedEvent("Notebooks");
+            }
+        }
+
+        public Notebook SelectedBook
+        {
+            get { return _selectedBook; }
+            set
+            {
+                _selectedBook = value;
+                RaisePropertyChangedEvent("SelectedBook");
+            }
+        }
+
         public ICommand SignInOrOutCommand
         {
             get { return new DelegateCommand(SignInOrOut); }
@@ -76,6 +99,7 @@ namespace Kindle2OneNote
         public void OnSignInComplete()
         {
             RefreshTexts();
+            RefreshNotebook();
         }
 
         private async void SignInOrOut()
@@ -89,6 +113,8 @@ namespace Kindle2OneNote
                 */
                 OneNote.Instance.Reset();
                 FileManager.Instance.Reset();
+                _notebooks.Clear();
+                RefreshTexts();
             }
             else
             {
@@ -98,8 +124,6 @@ namespace Kindle2OneNote
                 */
                 Account.SignIn();
             }
-
-            RefreshTexts();
         }
 
         public ICommand SelectBackupFolderCommand
@@ -140,6 +164,23 @@ namespace Kindle2OneNote
             UserStatusText = signedIn ? "Signed in" : "Not set yet";
 
             BackupFolderPath = FileManager.Instance.GetBackupFolderPath().Result;
+        }
+
+        private async void RefreshNotebook()
+        {
+            Notebooks = await OneNote.Instance.LoadNotebooks();
+            if (!Notebooks.Any())
+                return;
+
+            foreach (Notebook book in Notebooks)
+            {
+                if (book.Selected)
+                {
+                    SelectedBook = book;
+                    return;
+                }
+            }
+            SelectedBook = Notebooks.First();
         }
     }
 }

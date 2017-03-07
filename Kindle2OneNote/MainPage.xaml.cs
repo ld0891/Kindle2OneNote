@@ -101,13 +101,6 @@ namespace Kindle2OneNote
             RefreshSelectFileButtonStatus();
         }
 
-        private void notebookComboBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            notebookComboBox.ItemsSource = OneNote.Instance.Notebooks;
-            notebookComboBox.DisplayMemberPath = "Name";
-            notebookComboBox.SelectedIndex = -1;
-        }
-
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             uploadRing.IsActive = true;
