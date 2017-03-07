@@ -49,58 +49,6 @@ namespace Kindle2OneNote
             uploadNotificationTextBlock.Visibility = Visibility.Visible;
         }
 
-        private void DisplayNotebooks()
-        {
-            notebookComboBox.ItemsSource = OneNote.Instance.Notebooks;
-            notebookComboBox.DisplayMemberPath = "Name";
-
-            foreach (Notebook book in OneNote.Instance.Notebooks)
-            {
-                if (book.Selected)
-                {
-                    notebookComboBox.SelectedItem = book;
-                    return;
-                }
-            }
-            notebookComboBox.SelectedIndex = 0;
-        }
-
-        private void notebookComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var notebooksComboBox = sender as ComboBox;
-            var notebook = notebooksComboBox.SelectedItem as Notebook;
-            if (notebook == null)
-            {
-                return;
-            }
-
-            sectionComboBox.ItemsSource = notebook.Sections;
-            sectionComboBox.DisplayMemberPath = "Name";
-
-            foreach (Section section in notebook.Sections)
-            {
-                if (section.Selected)
-                {
-                    sectionComboBox.SelectedItem = section;
-                    return;
-                }
-            }
-            sectionComboBox.SelectedIndex = 0;
-        }
-
-        private void sectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var sectionComboBox = sender as ComboBox;
-            var section = sectionComboBox.SelectedItem as Section;
-            if (section == null)
-            {
-                return;
-            }
-
-            OneNote.Instance.TargetSectionId = section.Id;
-            RefreshSelectFileButtonStatus();
-        }
-
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             uploadRing.IsActive = true;
@@ -111,8 +59,6 @@ namespace Kindle2OneNote
             {
                 notebookRing.IsActive = true;
                 sectionRing.IsActive = true;
-                await OneNote.Instance.LoadNotebooks();
-                DisplayNotebooks();
                 notebookRing.IsActive = false;
                 sectionRing.IsActive = false;
             }

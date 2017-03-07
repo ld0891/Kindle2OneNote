@@ -15,13 +15,18 @@ namespace Kindle2OneNote
         private string _signInButtonText;
         private ObservableCollection<Notebook> _notebooks;
         private Notebook _selectedBook;
+        private ObservableCollection<Section> _sections;
+        private Section _selectedSection;
 
         private static volatile Presenter instance = null;
         private static object syncRoot = new Object();
 
         private Presenter()
         {
-            RefreshTexts();
+            if (Account.IsSignedIn())
+            {
+                OnSignInComplete();
+            }
         }
 
         public static Presenter Instance
@@ -88,6 +93,39 @@ namespace Kindle2OneNote
             {
                 _selectedBook = value;
                 RaisePropertyChangedEvent("SelectedBook");
+
+                Sections = new ObservableCollection<Section>(_selectedBook.Sections);
+                if (!Sections.Any())
+                    return;
+                foreach (Section section in Sections)
+                {
+                    if (section.Selected)
+                    {
+                        SelectedSection = section;
+                        return;
+                    }
+                }
+                SelectedSection = Sections.First();
+            }
+        }
+
+        public IEnumerable<Section> Sections
+        {
+            get { return _sections; }
+            set
+            {
+                _sections = new ObservableCollection<Section>(value);
+                RaisePropertyChangedEvent("Sections");
+            }
+        }
+
+        public Section SelectedSection
+        {
+            get { return _selectedSection; }
+            set
+            {
+                _selectedSection = value;
+                RaisePropertyChangedEvent("SelectedSection");
             }
         }
 
@@ -114,6 +152,7 @@ namespace Kindle2OneNote
                 OneNote.Instance.Reset();
                 FileManager.Instance.Reset();
                 _notebooks.Clear();
+                _selectedBook = null;
                 RefreshTexts();
             }
             else
