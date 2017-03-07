@@ -38,9 +38,6 @@ namespace Kindle2OneNote
                 account = null;
             }
             RemoveAccountData();
-
-            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
-            var page = (MainPage)frame.Content;
         }
 
         public static bool IsSignedIn()
@@ -73,14 +70,7 @@ namespace Kindle2OneNote
                 return null;
             }
         }
-
-        private static void StoreWebAccount(WebAccount account)
-        {
-            ApplicationData.Current.LocalSettings.Values[storedAccountIdKey] = account.Id;
-            ApplicationData.Current.LocalSettings.Values[storedProviderIdKey] = account.WebAccountProvider.Id;
-            ApplicationData.Current.LocalSettings.Values[storedProviderAuthorityKey] = account.WebAccountProvider.Authority;
-        }
-
+        
         private static async Task<WebAccount> GetWebAccount()
         {
             String accountID = ApplicationData.Current.LocalSettings.Values[storedAccountIdKey] as String;
@@ -94,6 +84,13 @@ namespace Kindle2OneNote
             }
 
             return account;
+        }
+
+        private static void StoreWebAccount(WebAccount account)
+        {
+            ApplicationData.Current.LocalSettings.Values[storedAccountIdKey] = account.Id;
+            ApplicationData.Current.LocalSettings.Values[storedProviderIdKey] = account.WebAccountProvider.Id;
+            ApplicationData.Current.LocalSettings.Values[storedProviderAuthorityKey] = account.WebAccountProvider.Authority;
         }
 
         private static void RemoveAccountData()
@@ -117,9 +114,6 @@ namespace Kindle2OneNote
 
         private static async void GetMsaTokenAsync(WebAccountProviderCommand command)
         {
-            var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
-            var page = (MainPage)frame.Content;
-
             WebTokenRequest request = new WebTokenRequest(command.WebAccountProvider, scope);
             WebTokenRequestResult result = await WebAuthenticationCoreManager.RequestTokenAsync(request);
             if (result.ResponseStatus == WebTokenRequestStatus.Success)
