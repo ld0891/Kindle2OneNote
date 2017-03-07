@@ -44,5 +44,15 @@ namespace Kindle2OneNote
             Windows.Storage.StorageFile clippingFile = await FileManager.Instance.SelectFile();
             Kindle.Instance.SendClippingsToOneNote(clippingFile);
         }
+
+        public ICommand SetupAutoPlayCommand
+        {
+            get { return new DelegateCommand(SetupAutoPlay); }
+        }
+
+        private async void SetupAutoPlay()
+        {
+            await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:autoplay"));
+        }
     }
 }

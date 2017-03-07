@@ -205,10 +205,5 @@ namespace Kindle2OneNote
                 selectFileButton.IsEnabled = true;
             }
         }
-
-        private async void autoplayButton_Click(object sender, RoutedEventArgs e)
-        {
-            await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:autoplay"));
-        }
     }
 }
