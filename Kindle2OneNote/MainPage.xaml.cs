@@ -26,7 +26,6 @@ namespace Kindle2OneNote
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private Presenter _presenter = new Presenter();
         public MainPage()
         {
             this.InitializeComponent();
@@ -34,7 +33,7 @@ namespace Kindle2OneNote
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 300);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
 
-            this.DataContext = _presenter;
+            this.DataContext = Presenter.Instance;
         }
 
         public void OnUploadStatus(bool isSuccess)

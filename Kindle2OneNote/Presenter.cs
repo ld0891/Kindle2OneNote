@@ -7,15 +7,35 @@ using System.Windows.Input;
 
 namespace Kindle2OneNote
 {
-    public class Presenter: ObservableObject
+    public sealed class Presenter: ObservableObject
     {
         private string _backupFolderPath;
         private string _userStatusText;
         private string _signInButtonText;
 
-        public Presenter()
+        private static volatile Presenter instance = null;
+        private static object syncRoot = new Object();
+
+        private Presenter()
         {
             RefreshTexts();
+        }
+
+        public static Presenter Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (syncRoot)
+                    {
+                        if (instance == null)
+                            instance = new Presenter();
+                    }
+                }
+
+                return instance;
+            }
         }
 
         public string BackupFolderPath
@@ -51,6 +71,11 @@ namespace Kindle2OneNote
         public ICommand SignInOrOutCommand
         {
             get { return new DelegateCommand(SignInOrOut); }
+        }
+
+        public void OnSignInComplete()
+        {
+            RefreshTexts();
         }
 
         private async void SignInOrOut()

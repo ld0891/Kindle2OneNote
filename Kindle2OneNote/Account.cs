@@ -121,6 +121,7 @@ namespace Kindle2OneNote
                 WebAccount account = result.ResponseData[0].WebAccount;
                 StoreWebAccount(account);
             }
+            Presenter.Instance.OnSignInComplete();
         }
     }
 }
