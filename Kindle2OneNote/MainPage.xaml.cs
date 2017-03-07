@@ -70,19 +70,6 @@ namespace Kindle2OneNote
             uploadNotificationTextBlock.Visibility = Visibility.Visible;
         }
 
-        private void signInButton_Loaded(object sender, RoutedEventArgs e)
-        {
-            var signInButton = sender as Button;
-            if (!Account.IsSignedIn())
-            {
-                signInButton.Content = "Sign In";
-            }
-            else
-            {
-                signInButton.Content = "Sign Out";
-            }
-        }
-
         private async void signInButton_Click(object sender, RoutedEventArgs e)
         {
             if (Account.IsSignedIn())
@@ -98,19 +85,6 @@ namespace Kindle2OneNote
                 notebookRing.IsActive = true;
                 sectionRing.IsActive = true;
                 Account.SignIn();
-            }
-        }
-
-        private void userText_Loaded(object sender, RoutedEventArgs e)
-        {
-            var userText = sender as TextBlock;
-            if (Account.IsSignedIn())
-            {
-                userText.Text = "Signed in";
-            }
-            else
-            {
-                userText.Text = "Not set yet";
             }
         }
 

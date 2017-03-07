@@ -24,6 +24,22 @@ namespace Kindle2OneNote
             }
         }
 
+        public string UserStatus
+        {
+            get
+            {
+                return Account.IsSignedIn() ? @"Signed In" : @"Not set yet";
+            }
+        }
+
+        public string SignInButtonText
+        {
+            get
+            {
+                return Account.IsSignedIn() ? @"Sign Out" : @"Sign In";
+            }
+        }
+
         public ICommand SelectBackupFolderCommand
         {
             get { return new DelegateCommand(SelectBackupFolder); }
