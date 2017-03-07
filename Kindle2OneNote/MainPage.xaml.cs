@@ -192,21 +192,6 @@ namespace Kindle2OneNote
             RefreshSelectFileButtonStatus();
         }
 
-        private async void selectFileButton_Click(object sender, RoutedEventArgs e)
-        {
-            var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
-            filePicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
-            filePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-            filePicker.FileTypeFilter.Add(".txt");
-            StorageFile file = await filePicker.PickSingleFileAsync();
-            if (file == null)
-            {
-                return;
-            }
-
-            Kindle.Instance.SendClippingsToOneNote(file);
-        }
-
         private void RefreshSelectFileButtonStatus()
         {
             if (!Account.IsSignedIn() ||

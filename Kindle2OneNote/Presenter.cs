@@ -31,7 +31,18 @@ namespace Kindle2OneNote
 
         private async void SelectBackupFolder()
         {
-            BackupFolderPath = await FileManager.Instance.SelectBackupFolder();
+            BackupFolderPath = await FileManager.Instance.SelectFolder();
+        }
+
+        public ICommand SelectClippingFileCommand
+        {
+            get { return new DelegateCommand(SelectClippingFile); }
+        }
+
+        private async void SelectClippingFile()
+        {
+            Windows.Storage.StorageFile clippingFile = await FileManager.Instance.SelectFile();
+            Kindle.Instance.SendClippingsToOneNote(clippingFile);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Kindle2OneNote
             return null;
         }
 
-        public async Task<string> SelectBackupFolder()
+        public async Task<string> SelectFolder()
         {
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
             folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
@@ -57,6 +57,16 @@ namespace Kindle2OneNote
 
             Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderToken, folder);
             return folder.Path;
+        }
+
+        public async Task<StorageFile> SelectFile()
+        {
+            var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
+            filePicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+            filePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            filePicker.FileTypeFilter.Add(".txt");
+            StorageFile file = await filePicker.PickSingleFileAsync();
+            return file;
         }
 
         public void Reset()
