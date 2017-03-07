@@ -41,7 +41,6 @@ namespace Kindle2OneNote
 
             var frame = (Windows.UI.Xaml.Controls.Frame)Windows.UI.Xaml.Window.Current.Content;
             var page = (MainPage)frame.Content;
-            page.OnSignInStatus(false);
         }
 
         public static bool IsSignedIn()
@@ -127,11 +126,6 @@ namespace Kindle2OneNote
             {
                 WebAccount account = result.ResponseData[0].WebAccount;
                 StoreWebAccount(account);
-                page.OnSignInStatus(true);
-            }
-            else
-            {
-                page.OnSignInStatus(false);
             }
         }
     }

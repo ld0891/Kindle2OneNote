@@ -37,26 +37,6 @@ namespace Kindle2OneNote
             this.DataContext = _presenter;
         }
 
-        public async void OnSignInStatus(bool isSuccess)
-        {
-            if (isSuccess)
-            {
-                userText.Text = "Signed in";
-                signInButton.Content = "Sign Out";
-                await OneNote.Instance.LoadNotebooks();
-                DisplayNotebooks();
-                notebookRing.IsActive = false;
-                sectionRing.IsActive = false;
-            }
-            else
-            {
-                userText.Text = "Not set yet";
-                signInButton.Content = "Sign In";
-            }
-
-            RefreshSelectFileButtonStatus();
-        }
-
         public void OnUploadStatus(bool isSuccess)
         {
             uploadRing.Visibility = Visibility.Collapsed;
@@ -68,24 +48,6 @@ namespace Kindle2OneNote
         {
             uploadRing.Visibility = Visibility.Visible;
             uploadNotificationTextBlock.Visibility = Visibility.Visible;
-        }
-
-        private async void signInButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (Account.IsSignedIn())
-            {
-                await Account.SignOut();
-                notebookComboBox.ItemsSource = null;
-                sectionComboBox.ItemsSource = null;
-                OneNote.Instance.Reset();
-                FileManager.Instance.Reset();
-            }
-            else
-            {
-                notebookRing.IsActive = true;
-                sectionRing.IsActive = true;
-                Account.SignIn();
-            }
         }
 
         private void DisplayNotebooks()

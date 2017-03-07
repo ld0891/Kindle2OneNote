@@ -10,13 +10,17 @@ namespace Kindle2OneNote
     public class Presenter: ObservableObject
     {
         private string _backupFolderPath;
+        private string _userStatusText;
+        private string _signInButtonText;
+
+        public Presenter()
+        {
+            RefreshTexts();
+        }
 
         public string BackupFolderPath
         {
-            get
-            {
-                return _backupFolderPath == null ? @"Not set yet" : _backupFolderPath;
-            }
+            get { return _backupFolderPath == null ? @"Not set yet" : _backupFolderPath; }
             set
             {
                 _backupFolderPath = value;
@@ -24,20 +28,53 @@ namespace Kindle2OneNote
             }
         }
 
-        public string UserStatus
+        public string UserStatusText
         {
-            get
+            get { return _userStatusText; }
+            set
             {
-                return Account.IsSignedIn() ? @"Signed In" : @"Not set yet";
+                _userStatusText = value;
+                RaisePropertyChangedEvent("UserStatusText");
             }
         }
 
         public string SignInButtonText
         {
-            get
+            get { return _signInButtonText; }
+            set
             {
-                return Account.IsSignedIn() ? @"Sign Out" : @"Sign In";
+                _signInButtonText = value;
+                RaisePropertyChangedEvent("SignInButtonText");
             }
+        }
+
+        public ICommand SignInOrOutCommand
+        {
+            get { return new DelegateCommand(SignInOrOut); }
+        }
+
+        private async void SignInOrOut()
+        {
+            if (Account.IsSignedIn())
+            {
+                await Account.SignOut();
+                /*
+                notebookComboBox.ItemsSource = null;
+                sectionComboBox.ItemsSource = null;
+                */
+                OneNote.Instance.Reset();
+                FileManager.Instance.Reset();
+            }
+            else
+            {
+                /*
+                notebookRing.IsActive = true;
+                sectionRing.IsActive = true;
+                */
+                Account.SignIn();
+            }
+
+            RefreshTexts();
         }
 
         public ICommand SelectBackupFolderCommand
@@ -69,6 +106,15 @@ namespace Kindle2OneNote
         private async void SetupAutoPlay()
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:autoplay"));
+        }
+
+        private void RefreshTexts()
+        {
+            bool signedIn = Account.IsSignedIn();
+            SignInButtonText = signedIn ? "Sign Out" : "Sign In";
+            UserStatusText = signedIn ? "Signed in" : "Not set yet";
+
+            BackupFolderPath = FileManager.Instance.GetBackupFolderPath().Result;
         }
     }
 }
