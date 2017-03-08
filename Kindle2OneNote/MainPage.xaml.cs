@@ -79,4 +79,48 @@ namespace Kindle2OneNote
             }
         }
     }
+
+    class UserStatusConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType,
+            object parameter, string language)
+        {
+            if ((bool)value)
+            {
+                return "Signed in";
+            }
+            else
+            {
+                return "Not set yet";
+            }
+        }
+        
+        public object ConvertBack(object value, Type targetType,
+            object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    class ButtonTextConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType,
+            object parameter, string language)
+        {
+            if ((bool)value)
+            {
+                return "Sign Out";
+            }
+            else
+            {
+                return "Sign In";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType,
+            object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

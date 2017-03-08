@@ -7,6 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" Height="300" Width="480" Loaded="Page_Loaded">
 
+    <Page.Resources>
+        <local:UserStatusConverter x:Key="UserStatusValueConverter"/>
+        <local:ButtonTextConverter x:Key="ButtonTextValueConverter"/>
+    </Page.Resources>
+
     <Grid Margin="10,30,10,0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -32,11 +37,11 @@
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Backup Folder:" TextAlignment="Right" VerticalAlignment="Center"/>
         <TextBlock Grid.Row="4" Grid.Column="0" Text="Notebook:" TextAlignment="Right" VerticalAlignment="Center"/>
         <TextBlock Grid.Row="6" Grid.Column="0" Text="Section:" TextAlignment="Right" VerticalAlignment="Center"/>
-        <TextBlock x:Name="userText" Grid.Row="0" Grid.Column="2" Text="{Binding UserStatusText}" VerticalAlignment="Center"/>
+        <TextBlock x:Name="userText" Grid.Row="0" Grid.Column="2" Text="{Binding IsSignedIn, Converter={StaticResource UserStatusValueConverter}}" VerticalAlignment="Center"/>
         <TextBlock x:Name="backupFolderText" Grid.Row="2" Grid.Column="2" Text="{Binding BackupFolderPath}" VerticalAlignment="Center" TextWrapping="Wrap"/>
         <ComboBox x:Name="notebookComboBox" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Notebooks, Mode=TwoWay}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedBook, Mode=TwoWay}"/>
         <ComboBox x:Name="sectionComboBox" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{Binding Sections, Mode=TwoWay}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSection, Mode=TwoWay}"/>
-        <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="{Binding SignInButtonText}" Command="{Binding SignInOrOutCommand}"/>
+        <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="{Binding IsSignedIn, Converter={StaticResource ButtonTextValueConverter}}" Command="{Binding SignInOrOutCommand}"/>
         <Button x:Name="selectButton" Grid.Row="2" Grid.Column="4" Content="Select Folder" Command="{Binding SelectBackupFolderCommand}"/>
         <ProgressRing x:Name="notebookRing" Grid.Column="4" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <ProgressRing x:Name="sectionRing" Grid.Column="4" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center"/>

@@ -11,9 +11,8 @@ namespace Kindle2OneNote
 {
     public sealed class Presenter: ObservableObject
     {
+        private bool _isSignedIn;
         private string _backupFolderPath;
-        private string _userStatusText;
-        private string _signInButtonText;
         private ObservableCollection<Notebook> _notebooks;
         private Notebook _selectedBook;
         private ObservableCollection<Section> _sections;
@@ -30,8 +29,8 @@ namespace Kindle2OneNote
                 _selectedSection = new Section();
                 _selectedSection.Id = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
             }
-
-            RefreshTexts();
+            
+            IsSignedIn = Account.IsSignedIn();
         }
 
         public static Presenter Instance
@@ -51,6 +50,16 @@ namespace Kindle2OneNote
             }
         }
 
+        public bool IsSignedIn
+        {
+            get { return _isSignedIn; }
+            set
+            {
+                _isSignedIn = value;
+                RaisePropertyChangedEvent("IsSignedIn");
+            }
+        }
+
         public string BackupFolderPath
         {
             get { return _backupFolderPath == null ? @"Not set yet" : _backupFolderPath; }
@@ -58,26 +67,6 @@ namespace Kindle2OneNote
             {
                 _backupFolderPath = value;
                 RaisePropertyChangedEvent("BackupFolderPath");
-            }
-        }
-
-        public string UserStatusText
-        {
-            get { return _userStatusText; }
-            set
-            {
-                _userStatusText = value;
-                RaisePropertyChangedEvent("UserStatusText");
-            }
-        }
-
-        public string SignInButtonText
-        {
-            get { return _signInButtonText; }
-            set
-            {
-                _signInButtonText = value;
-                RaisePropertyChangedEvent("SignInButtonText");
             }
         }
 
@@ -143,9 +132,9 @@ namespace Kindle2OneNote
             get { return new DelegateCommand(SignInOrOut); }
         }
 
-        public void OnSignInComplete(bool Success)
+        public void OnSignInComplete(bool success)
         {
-            RefreshTexts();
+            IsSignedIn = success;
             RefreshNotebook();
         }
 
@@ -157,7 +146,6 @@ namespace Kindle2OneNote
                 FileManager.Instance.Reset();
                 _notebooks?.Clear();
                 _selectedBook = null;
-                RefreshTexts();
             }
             else
             {
@@ -194,15 +182,6 @@ namespace Kindle2OneNote
         private async void SetupAutoPlay()
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:autoplay"));
-        }
-
-        private void RefreshTexts()
-        {
-            bool signedIn = Account.IsSignedIn();
-            SignInButtonText = signedIn ? "Sign Out" : "Sign In";
-            UserStatusText = signedIn ? "Signed in" : "Not set yet";
-
-            BackupFolderPath = FileManager.Instance.GetBackupFolderPath().Result;
         }
 
         private async void RefreshNotebook()
