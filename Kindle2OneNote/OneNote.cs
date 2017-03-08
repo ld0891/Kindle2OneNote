@@ -60,7 +60,7 @@ namespace Kindle2OneNote
             return Notebooks;
         }
 
-        public async void UploadClippingsToSection(List<BookWithClippings> books, Section targetSection)
+        public async Task UploadClippingsToSection(List<BookWithClippings> books, Section targetSection)
         {
             if (!books.Any() || targetSection == null)
             {

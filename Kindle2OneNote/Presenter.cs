@@ -12,6 +12,8 @@ namespace Kindle2OneNote
     public sealed class Presenter: ObservableObject
     {
         private bool _isSignedIn;
+        private bool _isLoadingMetainfo = false;
+        private bool _isUploadingClippings = false;
         private string _backupFolderPath;
         private ObservableCollection<Notebook> _notebooks;
         private Notebook _selectedBook;
@@ -57,6 +59,26 @@ namespace Kindle2OneNote
             {
                 _isSignedIn = value;
                 RaisePropertyChangedEvent("IsSignedIn");
+            }
+        }
+
+        public bool IsLoadingMetainfo
+        {
+            get { return _isLoadingMetainfo; }
+            set
+            {
+                _isLoadingMetainfo = value;
+                RaisePropertyChangedEvent("IsLoadingMetainfo");
+            }
+        }
+
+        public bool IsUploadingClippings
+        {
+            get { return _isUploadingClippings; }
+            set
+            {
+                _isUploadingClippings = value;
+                RaisePropertyChangedEvent("IsUploadingClippings");
             }
         }
 
@@ -132,10 +154,11 @@ namespace Kindle2OneNote
             get { return new DelegateCommand(SignInOrOut); }
         }
 
-        public void OnSignInComplete(bool success)
+        public async void OnSignInComplete(bool success)
         {
             IsSignedIn = success;
-            RefreshNotebook();
+            await RefreshNotebook();
+            IsLoadingMetainfo = false;
         }
 
         private async void SignInOrOut()
@@ -152,6 +175,7 @@ namespace Kindle2OneNote
             }
             else
             {
+                IsLoadingMetainfo = true;
                 Account.SignIn(OnSignInComplete);
             }
         }
@@ -187,7 +211,7 @@ namespace Kindle2OneNote
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings:autoplay"));
         }
 
-        private async void RefreshNotebook()
+        private async Task RefreshNotebook()
         {
             List<Notebook> notebooks = await OneNote.Instance.LoadNotebooks();
             MarkSelectedNotebookAndSection(notebooks);
@@ -232,13 +256,15 @@ namespace Kindle2OneNote
             if (file == null)
                 return;
 
+            IsUploadingClippings = true;
             string fileContent = await FileManager.Instance.ReadFileContent(file);
             List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
-            OneNote.Instance.UploadClippingsToSection(books, SelectedSection);
+            await OneNote.Instance.UploadClippingsToSection(books, SelectedSection);
             if (await FileManager.Instance.BackupFile(file))
             {
                 FileManager.Instance.DeleteFile(file);
             }
+            IsUploadingClippings = false;
         }
         
         public async void OnNewDeviceConnected()

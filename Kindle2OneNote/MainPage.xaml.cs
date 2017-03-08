@@ -36,36 +36,6 @@ namespace Kindle2OneNote
             this.DataContext = Presenter.Instance;
         }
 
-        public void OnUploadStatus(bool isSuccess)
-        {
-            uploadRing.Visibility = Visibility.Collapsed;
-            uploadNotificationTextBlock.Visibility = Visibility.Collapsed;
-            Notification.Instance.Show("Success", "Successfully uploaded your clippings");
-        }
-
-        public void OnUploadStart()
-        {
-            uploadRing.Visibility = Visibility.Visible;
-            uploadNotificationTextBlock.Visibility = Visibility.Visible;
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            uploadRing.IsActive = true;
-            uploadRing.Visibility = Visibility.Collapsed;
-            uploadNotificationTextBlock.Visibility = Visibility.Collapsed;
-
-            if (Account.IsSignedIn())
-            {
-                notebookRing.IsActive = true;
-                sectionRing.IsActive = true;
-                notebookRing.IsActive = false;
-                sectionRing.IsActive = false;
-            }
-
-            RefreshSelectFileButtonStatus();
-        }
-
         private void RefreshSelectFileButtonStatus()
         {
             if (!Account.IsSignedIn() ||

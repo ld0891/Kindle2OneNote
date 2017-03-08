@@ -5,7 +5,7 @@
     xmlns:local="using:Kindle2OneNote"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" Height="300" Width="480" Loaded="Page_Loaded">
+    mc:Ignorable="d" Height="300" Width="480">
 
     <Page.Resources>
         <local:UserStatusConverter x:Key="UserStatusValueConverter"/>
@@ -43,11 +43,11 @@
         <ComboBox x:Name="sectionComboBox" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{Binding Sections, Mode=TwoWay}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSection, Mode=TwoWay}"/>
         <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="{Binding IsSignedIn, Converter={StaticResource ButtonTextValueConverter}}" Command="{Binding SignInOrOutCommand}"/>
         <Button x:Name="selectButton" Grid.Row="2" Grid.Column="4" Content="Select Folder" Command="{Binding SelectBackupFolderCommand}"/>
-        <ProgressRing x:Name="notebookRing" Grid.Column="4" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-        <ProgressRing x:Name="sectionRing" Grid.Column="4" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <ProgressRing x:Name="notebookRing" Grid.Column="4" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" IsActive="{Binding IsLoadingMetainfo}" Visibility="Visible"/>
+        <ProgressRing x:Name="sectionRing" Grid.Column="4" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" IsActive="{Binding IsLoadingMetainfo}" Visibility="Visible"/>
         <Button x:Name="selectFileButton" Grid.Row="8" Grid.Column="4" Content="Select Clipping File" Command="{Binding SelectClippingFileCommand}"/>
         <Button x:Name="autoplayButton" Grid.Row="10" Grid.Column="4" Content="Setup AutoPlay" Command="{Binding SetupAutoPlayCommand}"/>
-        <ProgressRing x:Name="uploadRing" HorizontalAlignment="Right" Grid.Row="10" Grid.Column="0" VerticalAlignment="Top"/>
-        <TextBlock x:Name="uploadNotificationTextBlock" Grid.Row="10" Grid.Column="2" Text="Uploading clippings" TextAlignment="Left" VerticalAlignment="Top"/>
+        <ProgressRing x:Name="uploadRing" HorizontalAlignment="Right" Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" IsActive="{Binding IsUploadingClippings}" Visibility="Visible"/>
+        <TextBlock x:Name="uploadNotificationTextBlock" Grid.Row="8" Grid.Column="2" VerticalAlignment="Center" Text="Uploading clippings" TextAlignment="Left" Visibility="{Binding IsUploadingClippings}"/>
     </Grid>
 </Page>
