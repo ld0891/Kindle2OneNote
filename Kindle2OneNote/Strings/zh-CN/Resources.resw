@@ -174,4 +174,7 @@
   <data name="UserStatus.Text" xml:space="preserve">
     <value>用户状态：</value>
   </data>
+  <data name="NotReady" xml:space="preserve">
+    <value>配置不全，还不能上传剪贴。</value>
+  </data>
 </root>

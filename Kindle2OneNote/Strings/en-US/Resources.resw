@@ -174,4 +174,7 @@
   <data name="UserStatus.Text" xml:space="preserve">
     <value>User Status:</value>
   </data>
+  <data name="NotReady" xml:space="preserve">
+    <value>Settings incomplete, can not upload your clippings yet.</value>
+  </data>
 </root>

@@ -58,7 +58,6 @@ namespace Kindle2OneNote
         public bool IsReady
         {
             get { return _isSignedIn &&
-                    !_isLoadingMetainfo &&
                     _backupFolderPath != null && 
                     _selectedSection != null; }
         }
@@ -314,6 +313,14 @@ namespace Kindle2OneNote
         
         public async void OnNewDeviceConnected()
         {
+            if (!IsReady)
+            {
+                var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+                string str = loader.GetString("NotReady");
+                Notification.Instance.ShowError(str);
+                return;
+            }
+
             StorageFile file = await Kindle.Instance.GetClippingFile();
             if (file == null)
             {
