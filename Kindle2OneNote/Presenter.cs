@@ -145,7 +145,10 @@ namespace Kindle2OneNote
                 await Account.SignOut();
                 FileManager.Instance.Reset();
                 _notebooks?.Clear();
+                _sections?.Clear();
                 _selectedBook = null;
+                _selectedSection = null;
+                IsSignedIn = false;
             }
             else
             {
