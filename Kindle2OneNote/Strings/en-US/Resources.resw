@@ -160,7 +160,7 @@
     <value>Sign Out</value>
   </data>
   <data name="Success" xml:space="preserve">
-    <value>Success</value>
+    <value>OK</value>
   </data>
   <data name="UploadFailure" xml:space="preserve">
     <value>Some of the clippings are not uploaded successfully.</value>

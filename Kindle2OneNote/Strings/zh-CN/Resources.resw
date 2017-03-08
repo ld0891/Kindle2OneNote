@@ -160,7 +160,7 @@
     <value>注销</value>
   </data>
   <data name="Success" xml:space="preserve">
-    <value>成功</value>
+    <value>没问题</value>
   </data>
   <data name="UploadFailure" xml:space="preserve">
     <value>有部分剪贴上传失败。</value>
