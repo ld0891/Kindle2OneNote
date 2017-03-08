@@ -168,6 +168,11 @@ namespace Kindle2OneNote
         public async void OnSignInComplete(bool success)
         {
             IsSignedIn = success;
+            if (!success)
+            {
+                Notification.Instance.Show("\u274C Error", "Sign in failed, please try again later.");
+                return;
+            }
             await RefreshNotebook();
         }
 
@@ -234,7 +239,10 @@ namespace Kindle2OneNote
             MarkSelectedNotebookAndSection(notebooks);
             Notebooks = notebooks;
             if (!Notebooks.Any())
+            {
+                Notification.Instance.Show("\u274C Error", "Seems no notebooks found, please try again later.");
                 return;
+            }
 
             foreach (Notebook book in Notebooks)
             {
@@ -289,7 +297,7 @@ namespace Kindle2OneNote
             StorageFile file = await Kindle.Instance.GetClippingFile();
             if (file == null)
             {
-                Notification.Instance.Show("Error", "No kindle or clipping file found.");
+                Notification.Instance.Show("\u274C\u2714 Error", "No clipping file found.");
                 return;
             }
 
