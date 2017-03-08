@@ -33,27 +33,27 @@
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="User Status:" TextAlignment="Right" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Backup Folder:" TextAlignment="Right" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Notebook:" TextAlignment="Right" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="6" Grid.Column="0" Text="Section:" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock x:Uid="UserStatus" Grid.Row="0" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock x:Uid="BackupFolder" Grid.Row="2" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock x:Uid="Notebook" Grid.Row="4" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock x:Uid="Section" Grid.Row="6" Grid.Column="0" TextAlignment="Right" VerticalAlignment="Center"/>
         <TextBlock x:Name="userText" Grid.Row="0" Grid.Column="2" Text="{Binding IsSignedIn, Converter={StaticResource UserStatusValueConverter}}" VerticalAlignment="Center"/>
         <TextBlock x:Name="backupFolderText" Grid.Row="2" Grid.Column="2" Text="{Binding BackupFolderPath}" VerticalAlignment="Center" TextWrapping="Wrap"/>
         <ComboBox x:Name="notebookComboBox" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Notebooks, Mode=TwoWay}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedBook, Mode=TwoWay}"/>
         <ComboBox x:Name="sectionComboBox" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{Binding Sections, Mode=TwoWay}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSection, Mode=TwoWay}"/>
         <Button x:Name="signInButton" Grid.Row="0" Grid.Column="4" Content="{Binding IsSignedIn, Converter={StaticResource ButtonTextValueConverter}}" Command="{Binding SignInOrOutCommand}"/>
-        <Button x:Name="selectButton" Grid.Row="2" Grid.Column="4" Content="Select Folder" Command="{Binding SelectBackupFolderCommand}"/>
+        <Button x:Uid="SelectFolderButton" x:Name="selectButton" Grid.Row="2" Grid.Column="4" Command="{Binding SelectBackupFolderCommand}"/>
         <ProgressRing x:Name="notebookRing" Grid.Column="4" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" IsActive="{Binding IsLoadingMetainfo}" Visibility="Visible"/>
         <ProgressRing x:Name="sectionRing" Grid.Column="4" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" IsActive="{Binding IsLoadingMetainfo}" Visibility="Visible"/>
-        <Button x:Name="selectFileButton" Grid.Row="8" Grid.Column="4" Content="Select Clipping File" Command="{Binding SelectClippingFileCommand}" Click="selectFileButton_Click">
+        <Button x:Uid="SelectClippingButton" x:Name="selectFileButton" Grid.Row="8" Grid.Column="4" Command="{Binding SelectClippingFileCommand}" Click="selectFileButton_Click">
             <FlyoutBase.AttachedFlyout>
                 <Flyout>
                     <TextBlock Text="Some settings are missing."/>
                 </Flyout>
             </FlyoutBase.AttachedFlyout>
         </Button>
-        <Button x:Name="autoplayButton" Grid.Row="10" Grid.Column="4" Content="Setup AutoPlay" Command="{Binding SetupAutoPlayCommand}"/>
+        <Button x:Uid="AutoPlay" x:Name="autoplayButton" Grid.Row="10" Grid.Column="4" Command="{Binding SetupAutoPlayCommand}"/>
         <ProgressRing x:Name="uploadRing" HorizontalAlignment="Right" Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" IsActive="{Binding IsUploadingClippings}" Visibility="Visible"/>
-        <TextBlock x:Name="uploadNotificationTextBlock" Grid.Row="8" Grid.Column="2" VerticalAlignment="Center" Text="Uploading clippings" TextAlignment="Left" Visibility="{Binding IsUploadingClippings}"/>
+        <TextBlock x:Uid="Uploading" x:Name="uploadNotificationTextBlock" Grid.Row="8" Grid.Column="2" VerticalAlignment="Center" TextAlignment="Left" Visibility="{Binding IsUploadingClippings}"/>
     </Grid>
 </Page>

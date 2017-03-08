@@ -95,7 +95,11 @@ namespace Kindle2OneNote
 
         public string BackupFolderPath
         {
-            get { return _backupFolderPath == null ? @"Not set yet" : _backupFolderPath; }
+            get
+            {
+                var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+                var str = loader.GetString("NotSet");
+                return _backupFolderPath == null ? str : _backupFolderPath; }
             set
             {
                 _backupFolderPath = value;
@@ -170,7 +174,9 @@ namespace Kindle2OneNote
             IsSignedIn = success;
             if (!success)
             {
-                Notification.Instance.Show("\u274C Error", "Sign in failed, please try again later.");
+                var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+                string str = loader.GetString("SignInFailure");
+                Notification.Instance.ShowError(str);
                 return;
             }
             await RefreshNotebook();
@@ -240,7 +246,9 @@ namespace Kindle2OneNote
             Notebooks = notebooks;
             if (!Notebooks.Any())
             {
-                Notification.Instance.Show("\u274C Error", "Seems no notebooks found, please try again later.");
+                var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+                string str = loader.GetString("NotebookNotFound");
+                Notification.Instance.ShowError(str);
                 return;
             }
 
@@ -297,7 +305,9 @@ namespace Kindle2OneNote
             StorageFile file = await Kindle.Instance.GetClippingFile();
             if (file == null)
             {
-                Notification.Instance.Show("\u274C\u2714 Error", "No clipping file found.");
+                var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+                string str = loader.GetString("NoClippingFound");
+                Notification.Instance.ShowError(str);
                 return;
             }
 

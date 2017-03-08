@@ -32,7 +32,23 @@ namespace Kindle2OneNote
             }
         }
 
-        public void Show(String title, String message)
+        public void ShowSuccess(String message)
+        {
+            var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+            string str = loader.GetString("Success");
+            string title = @"\u2714 " + str;
+            Show(title, message);
+        }
+
+        public void ShowError(String message)
+        {
+            var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+            string str = loader.GetString("Error");
+            string title = @"\u274C " + str;
+            Show(title, message);
+        }
+
+        private void Show(String title, String message)
         {
             ToastContent content = new ToastContent()
             {

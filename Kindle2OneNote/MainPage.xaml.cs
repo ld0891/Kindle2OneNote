@@ -48,13 +48,14 @@ namespace Kindle2OneNote
         public object Convert(object value, Type targetType,
             object parameter, string language)
         {
+            var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
             if ((bool)value)
             {
-                return "Signed in";
+                return loader.GetString("SignedIn");
             }
             else
             {
-                return "Not set yet";
+                return loader.GetString("NotSet"); ;
             }
         }
         
@@ -70,13 +71,14 @@ namespace Kindle2OneNote
         public object Convert(object value, Type targetType,
             object parameter, string language)
         {
+            var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
             if ((bool)value)
             {
-                return "Sign Out";
+                return loader.GetString("SignIn");
             }
             else
             {
-                return "Sign In";
+                return loader.GetString("SignOut");
             }
         }
 
