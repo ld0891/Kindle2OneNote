@@ -36,7 +36,7 @@ namespace Kindle2OneNote
         {
             var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
             string str = loader.GetString("Success");
-            string title = @"\u2714 " + str;
+            string title = "\u2714 " + str;
             Show(title, message);
         }
 
@@ -44,7 +44,7 @@ namespace Kindle2OneNote
         {
             var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
             string str = loader.GetString("Error");
-            string title = @"\u274C " + str;
+            string title = "\u274C " + str;
             Show(title, message);
         }
 
