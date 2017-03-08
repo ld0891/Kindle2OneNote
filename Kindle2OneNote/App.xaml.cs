@@ -107,12 +107,21 @@ namespace Kindle2OneNote
         {
             if (args.Verb == "send")
             {
+                Frame rootFrame = Window.Current.Content as Frame;
+                if (rootFrame == null)
+                {
+                    rootFrame = new Frame();
+                    Window.Current.Content = rootFrame;
+                }
+                rootFrame.Navigate(typeof(MainPage));
+                Window.Current.Activate();
                 Presenter.Instance.OnNewDeviceConnected();
             }
 
             base.OnFileActivated(args);
         }
 
+        
         protected override void OnActivated(IActivatedEventArgs args)
         {
             if (args.Kind == ActivationKind.ToastNotification)

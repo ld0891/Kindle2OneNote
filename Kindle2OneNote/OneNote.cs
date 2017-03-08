@@ -60,9 +60,9 @@ namespace Kindle2OneNote
             return Notebooks;
         }
 
-        public async Task<bool> UploadClippingsToSection(List<BookWithClippings> books, Section targetSection)
+        public async Task<bool> UploadClippingsToSection(List<BookWithClippings> books, string sectionId)
         {
-            if (!books.Any() || targetSection == null)
+            if (!books.Any() || sectionId == null)
             {
                 return false;
             }
@@ -70,7 +70,7 @@ namespace Kindle2OneNote
             bool success = true;
             bool bookExists = false;
             string targetName = "";
-            List<NotePage> pages = await QueryPagesInSection(targetSection.Id);
+            List<NotePage> pages = await QueryPagesInSection(sectionId);
             foreach (BookWithClippings book in books)
             {
                 bookExists = false;
@@ -87,7 +87,7 @@ namespace Kindle2OneNote
 
                 if (!bookExists)
                 {
-                    success = await CreateNewPageInSection(targetSection.Id, book);
+                    success = await CreateNewPageInSection(sectionId, book);
                 }
 
                 if (!success)

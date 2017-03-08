@@ -60,7 +60,7 @@ namespace Kindle2OneNote
         {
             get { return _isSignedIn &&
                     _backupFolderPath != null && 
-                    _selectedSection != null; }
+                    _selectedSectionId != null; }
         }
 
         public bool IsSignedIn
@@ -297,7 +297,7 @@ namespace Kindle2OneNote
             IsUploadingClippings = true;
             string fileContent = await FileManager.Instance.ReadFileContent(file);
             List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
-            bool success = await OneNote.Instance.UploadClippingsToSection(books, SelectedSection);
+            bool success = await OneNote.Instance.UploadClippingsToSection(books, _selectedSectionId);
             if (await FileManager.Instance.BackupFile(file))
             {
                 FileManager.Instance.DeleteFile(file);
