@@ -20,7 +20,7 @@ namespace Kindle2OneNote
         private ObservableCollection<Section> _sections;
         private Section _selectedSection;
 
-        private static readonly string sectionKey = @"TargetSectionID";
+        private static readonly string sectionKey = @"SelectedSectionID";
         private static volatile Presenter instance = null;
         private static object syncRoot = new Object();
 
