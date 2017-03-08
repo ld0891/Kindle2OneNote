@@ -29,8 +29,22 @@ namespace Kindle2OneNote
         public MainPage()
         {
             this.InitializeComponent();
-            
-            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = new Size(480, 300);
+
+            var systemColor = (Windows.UI.Color)this.Resources["SystemAccentColor"];
+            var titleBar = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().TitleBar;
+            if (titleBar != null)
+            {
+                titleBar.ButtonBackgroundColor = systemColor;
+                titleBar.BackgroundColor = systemColor;
+                titleBar.ButtonHoverForegroundColor = Windows.UI.Colors.White;
+                titleBar.ButtonHoverBackgroundColor = LightenDarkenColor(systemColor, 0.1);
+                titleBar.ButtonPressedForegroundColor = Windows.UI.Colors.White;
+                titleBar.ButtonPressedBackgroundColor = LightenDarkenColor(systemColor, -0.1);
+            }
+
+            Size windowSize = new Size(480, 260);
+            Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = windowSize;
+            Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetPreferredMinSize(windowSize);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
 
             this.DataContext = Presenter.Instance;
@@ -40,6 +54,14 @@ namespace Kindle2OneNote
         {
             if (!Presenter.Instance.IsReady)
                 FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
+        }
+        
+        private static Windows.UI.Color LightenDarkenColor(Windows.UI.Color color, double correctionFactor)
+        {
+            double red = (255 - color.R) * correctionFactor + color.R;
+            double green = (255 - color.G) * correctionFactor + color.G;
+            double blue = (255 - color.B) * correctionFactor + color.B;
+            return Windows.UI.Color.FromArgb(color.A, (byte)red, (byte)green, (byte)blue);
         }
     }
 

@@ -5,14 +5,14 @@
     xmlns:local="using:Kindle2OneNote"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" Height="300" Width="480">
+    mc:Ignorable="d" Height="260" Width="480">
 
     <Page.Resources>
         <local:UserStatusConverter x:Key="UserStatusValueConverter"/>
         <local:ButtonTextConverter x:Key="ButtonTextValueConverter"/>
     </Page.Resources>
 
-    <Grid Margin="10,30,10,0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Margin="12,8,12,0" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="10" />
