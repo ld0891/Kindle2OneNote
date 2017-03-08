@@ -11,10 +11,11 @@ namespace Kindle2OneNote
 {
     public sealed class Presenter: ObservableObject
     {
-        private bool _isSignedIn;
+        private readonly bool _isReady = false;
+        private bool _isSignedIn = false;
         private bool _isLoadingMetainfo = false;
         private bool _isUploadingClippings = false;
-        private string _backupFolderPath;
+        private string _backupFolderPath = null;
         private ObservableCollection<Notebook> _notebooks;
         private Notebook _selectedBook;
         private ObservableCollection<Section> _sections;
@@ -31,9 +32,11 @@ namespace Kindle2OneNote
                 _selectedSection = new Section();
                 _selectedSection.Id = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
             }
-
+            
             BackupFolderPath = FileManager.Instance.GetBackupFolderPath().Result;
             IsSignedIn = Account.IsSignedIn();
+            if (IsSignedIn)
+                RefreshNotebook();
         }
 
         public static Presenter Instance
@@ -51,6 +54,13 @@ namespace Kindle2OneNote
 
                 return instance;
             }
+        }
+
+        public bool IsReady
+        {
+            get { return _isSignedIn && 
+                    _backupFolderPath != null && 
+                    _selectedSection != null; }
         }
 
         public bool IsSignedIn
@@ -159,7 +169,6 @@ namespace Kindle2OneNote
         {
             IsSignedIn = success;
             await RefreshNotebook();
-            IsLoadingMetainfo = false;
         }
 
         private async void SignInOrOut()
@@ -168,6 +177,7 @@ namespace Kindle2OneNote
             {
                 await Account.SignOut();
                 FileManager.Instance.Reset();
+                BackupFolderPath = null;
                 _notebooks?.Clear();
                 _sections?.Clear();
                 _selectedBook = null;
@@ -198,6 +208,9 @@ namespace Kindle2OneNote
 
         private async void SelectClippingFile()
         {
+            if (!IsReady)
+                return;
+
             Windows.Storage.StorageFile clippingFile = await FileManager.Instance.SelectFile();
             SendClippingsToOneNote(clippingFile);
         }
@@ -214,7 +227,10 @@ namespace Kindle2OneNote
 
         private async Task RefreshNotebook()
         {
+            IsLoadingMetainfo = true;
             List<Notebook> notebooks = await OneNote.Instance.LoadNotebooks();
+            IsLoadingMetainfo = false;
+
             MarkSelectedNotebookAndSection(notebooks);
             Notebooks = notebooks;
             if (!Notebooks.Any())

@@ -36,17 +36,10 @@ namespace Kindle2OneNote
             this.DataContext = Presenter.Instance;
         }
 
-        private void RefreshSelectFileButtonStatus()
+        private void selectFileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!Account.IsSignedIn() ||
-                FileManager.Instance.GetBackupFolderPath() == null)
-            {
-                selectFileButton.IsEnabled = false;
-            }
-            else
-            {
-                selectFileButton.IsEnabled = true;
-            }
+            if (!Presenter.Instance.IsReady)
+                FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
         }
     }
 
