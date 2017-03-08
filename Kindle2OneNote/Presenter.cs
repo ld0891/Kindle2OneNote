@@ -57,7 +57,8 @@ namespace Kindle2OneNote
 
         public bool IsReady
         {
-            get { return _isSignedIn && 
+            get { return _isSignedIn &&
+                    !_isLoadingMetainfo &&
                     _backupFolderPath != null && 
                     _selectedSection != null; }
         }
