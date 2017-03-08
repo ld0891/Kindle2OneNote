@@ -5,7 +5,7 @@
     xmlns:local="using:Kindle2OneNote"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" Height="260" Width="480">
+    mc:Ignorable="d" Height="300" Width="480">
 
     <Page.Resources>
         <local:UserStatusConverter x:Key="UserStatusValueConverter"/>

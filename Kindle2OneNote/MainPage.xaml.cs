@@ -42,7 +42,7 @@ namespace Kindle2OneNote
                 titleBar.ButtonPressedBackgroundColor = LightenDarkenColor(systemColor, -0.1);
             }
 
-            Size windowSize = new Size(480, 260);
+            Size windowSize = new Size(480, 300);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchViewSize = windowSize;
             Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetPreferredMinSize(windowSize);
             Windows.UI.ViewManagement.ApplicationView.PreferredLaunchWindowingMode = Windows.UI.ViewManagement.ApplicationViewWindowingMode.PreferredLaunchViewSize;
