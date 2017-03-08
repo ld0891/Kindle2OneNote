@@ -31,10 +31,7 @@ namespace Kindle2OneNote
                 _selectedSection.Id = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
             }
 
-            if (Account.IsSignedIn())
-            {
-                OnSignInComplete();
-            }
+            RefreshTexts();
         }
 
         public static Presenter Instance
@@ -101,6 +98,8 @@ namespace Kindle2OneNote
             {
                 _selectedBook = value;
                 RaisePropertyChangedEvent("SelectedBook");
+                if (_selectedBook == null)
+                    return;
 
                 Sections = new ObservableCollection<Section>(_selectedBook.Sections);
                 if (!Sections.Any())
@@ -144,7 +143,7 @@ namespace Kindle2OneNote
             get { return new DelegateCommand(SignInOrOut); }
         }
 
-        public void OnSignInComplete()
+        public void OnSignInComplete(bool Success)
         {
             RefreshTexts();
             RefreshNotebook();
@@ -156,13 +155,13 @@ namespace Kindle2OneNote
             {
                 await Account.SignOut();
                 FileManager.Instance.Reset();
-                _notebooks.Clear();
+                _notebooks?.Clear();
                 _selectedBook = null;
                 RefreshTexts();
             }
             else
             {
-                Account.SignIn();
+                Account.SignIn(OnSignInComplete);
             }
         }
 

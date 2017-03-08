@@ -49,7 +49,7 @@ namespace Kindle2OneNote
             uploadNotificationTextBlock.Visibility = Visibility.Visible;
         }
 
-        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             uploadRing.IsActive = true;
             uploadRing.Visibility = Visibility.Collapsed;

@@ -19,9 +19,13 @@ namespace Kindle2OneNote
         private static readonly string scope = @"office.onenote, office.onenote_update_by_app";
         private static readonly string providerId = @"https://login.microsoft.com";
         private static readonly string providerAuthority = @"consumers";
-        
-        public static void SignIn()
+
+        private static Action<bool> _callBack;
+
+
+        public static void SignIn(Action<bool> callBack)
         {
+            _callBack = callBack;
             AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested += BuildPaneAsync;
             AccountsSettingsPane.Show();
         }
@@ -120,8 +124,12 @@ namespace Kindle2OneNote
             {
                 WebAccount account = result.ResponseData[0].WebAccount;
                 StoreWebAccount(account);
+                _callBack?.Invoke(true);
             }
-            Presenter.Instance.OnSignInComplete();
+            else
+            {
+                _callBack?.Invoke(false);
+            }
         }
     }
 }
