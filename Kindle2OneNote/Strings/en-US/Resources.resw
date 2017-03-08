@@ -162,8 +162,14 @@
   <data name="Success" xml:space="preserve">
     <value>Success</value>
   </data>
+  <data name="UploadFailure" xml:space="preserve">
+    <value>Some of the clippings are not uploaded successfully.</value>
+  </data>
   <data name="Uploading.Text" xml:space="preserve">
     <value>Uploading clippings</value>
+  </data>
+  <data name="UploadSuccess" xml:space="preserve">
+    <value>Successfully uploaded all your clippings.</value>
   </data>
   <data name="UserStatus.Text" xml:space="preserve">
     <value>User Status:</value>

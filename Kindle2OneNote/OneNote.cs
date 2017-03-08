@@ -60,13 +60,14 @@ namespace Kindle2OneNote
             return Notebooks;
         }
 
-        public async Task UploadClippingsToSection(List<BookWithClippings> books, Section targetSection)
+        public async Task<bool> UploadClippingsToSection(List<BookWithClippings> books, Section targetSection)
         {
             if (!books.Any() || targetSection == null)
             {
-                return;
+                return false;
             }
 
+            bool success = true;
             bool bookExists = false;
             string targetName = "";
             List<NotePage> pages = await QueryPagesInSection(targetSection.Id);
@@ -79,16 +80,20 @@ namespace Kindle2OneNote
                     if (page.Name == targetName)
                     {
                         bookExists = true;
-                        await AppendClippingsToPage(page.Id, book.Clippings);
+                        success = await AppendClippingsToPage(page.Id, book.Clippings);
                         break;
                     }
                 }
 
                 if (!bookExists)
                 {
-                    await CreateNewPageInSection(targetSection.Id, book);
+                    success = await CreateNewPageInSection(targetSection.Id, book);
                 }
+
+                if (!success)
+                    break;
             }
+            return success;
         }
 
         private async Task<string> QuerySections()
@@ -179,7 +184,7 @@ namespace Kindle2OneNote
             return notePages;
         }
 
-        private async Task CreateNewPageInSection(string sectionId, BookWithClippings book)
+        private async Task<bool> CreateNewPageInSection(string sectionId, BookWithClippings book)
         {
             string token = await Account.GetToken();
             string requestBody = NoteRequest.CreatePage(book);
@@ -188,11 +193,12 @@ namespace Kindle2OneNote
             HttpStringContent content = new HttpStringContent(requestBody, UnicodeEncoding.Utf8, @"application/xhtml+xml");
 
             HttpResponseMessage httpResponse = await client.PostAsync(createApi, content);
-            HttpStatusCode code = httpResponse.StatusCode;
-            string resp = await httpResponse.Content.ReadAsStringAsync();
+            if (httpResponse.StatusCode == HttpStatusCode.Created)
+                return true;
+            return false;
         }
 
-        private async Task AppendClippingsToPage(string pageId, List<Clipping> clippings)
+        private async Task<bool> AppendClippingsToPage(string pageId, List<Clipping> clippings)
         {
             string requestBody = NoteRequest.UpdatePage(clippings);
             var jsonObject = new JsonObject();
@@ -211,8 +217,9 @@ namespace Kindle2OneNote
             client.DefaultRequestHeaders.Authorization = new HttpCredentialsHeaderValue("Bearer", token);
             request.Content = new HttpStringContent(reqString, UnicodeEncoding.Utf8, @"application/json");
             HttpResponseMessage httpResponse = await client.SendRequestAsync(request);
-            HttpStatusCode code = httpResponse.StatusCode;
-            string resp = await httpResponse.Content.ReadAsStringAsync();
+            if (httpResponse.StatusCode == HttpStatusCode.NoContent)
+                return true;
+            return false;
         }
     }
 }

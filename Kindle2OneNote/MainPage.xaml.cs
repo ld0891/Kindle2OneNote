@@ -74,11 +74,11 @@ namespace Kindle2OneNote
             var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
             if ((bool)value)
             {
-                return loader.GetString("SignIn");
+                return loader.GetString("SignOut");
             }
             else
             {
-                return loader.GetString("SignOut");
+                return loader.GetString("SignIn");
             }
         }
 

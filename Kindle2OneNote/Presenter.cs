@@ -11,7 +11,6 @@ namespace Kindle2OneNote
 {
     public sealed class Presenter: ObservableObject
     {
-        private readonly bool _isReady = false;
         private bool _isSignedIn = false;
         private bool _isLoadingMetainfo = false;
         private bool _isUploadingClippings = false;
@@ -292,12 +291,24 @@ namespace Kindle2OneNote
             IsUploadingClippings = true;
             string fileContent = await FileManager.Instance.ReadFileContent(file);
             List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
-            await OneNote.Instance.UploadClippingsToSection(books, SelectedSection);
+            bool success = await OneNote.Instance.UploadClippingsToSection(books, SelectedSection);
             if (await FileManager.Instance.BackupFile(file))
             {
                 FileManager.Instance.DeleteFile(file);
             }
             IsUploadingClippings = false;
+
+            var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+            if (success)
+            {
+                string str = loader.GetString("UploadSuccess");
+                Notification.Instance.ShowSuccess(str);
+            }
+            else
+            {
+                string str = loader.GetString("UploadFailure");
+                Notification.Instance.ShowError(str);
+            }
         }
         
         public async void OnNewDeviceConnected()
