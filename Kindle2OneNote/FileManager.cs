@@ -52,7 +52,7 @@ namespace Kindle2OneNote
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder == null)
             {
-                return null;
+                return await GetBackupFolderPath();
             }
 
             Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderToken, folder);

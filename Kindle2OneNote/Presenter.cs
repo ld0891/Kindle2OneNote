@@ -31,7 +31,8 @@ namespace Kindle2OneNote
                 _selectedSection = new Section();
                 _selectedSection.Id = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
             }
-            
+
+            BackupFolderPath = FileManager.Instance.GetBackupFolderPath().Result;
             IsSignedIn = Account.IsSignedIn();
         }
 
