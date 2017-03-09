@@ -25,6 +25,13 @@ namespace Kindle2OneNote
             Selected = false;
         }
 
+        public Section(string id, string name)
+        {
+            Id = id;
+            Name = name;
+            Selected = false;
+        }
+
         public Section(string jsonString) : this()
         {
             JsonObject jsonObject = JsonObject.Parse(jsonString);

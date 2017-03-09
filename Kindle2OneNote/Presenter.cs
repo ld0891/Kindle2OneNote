@@ -15,13 +15,11 @@ namespace Kindle2OneNote
         private bool _isLoadingMetainfo = false;
         private bool _isUploadingClippings = false;
         private string _backupFolderPath = null;
-        private string _selectedSectionId = null;
+        private Notebook _selectedBook = null;
+        private Section _selectedSection = null;
         private ObservableCollection<Notebook> _notebooks;
-        private Notebook _selectedBook;
         private ObservableCollection<Section> _sections;
-        private Section _selectedSection;
         
-
         private static readonly string sectionKey = @"SelectedSectionID";
         private static volatile Presenter instance = null;
         private static object syncRoot = new Object();
@@ -30,7 +28,8 @@ namespace Kindle2OneNote
         {
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey(sectionKey))
             {
-                _selectedSectionId = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
+                var sectionId = ApplicationData.Current.LocalSettings.Values[sectionKey] as String;
+                _selectedSection = new Section(sectionId, "");
             }
             
             BackupFolderPath = FileManager.Instance.GetBackupFolderPath().Result;
@@ -59,8 +58,8 @@ namespace Kindle2OneNote
         public bool IsReady
         {
             get { return _isSignedIn &&
-                    _backupFolderPath != null && 
-                    _selectedSectionId != null; }
+                    _backupFolderPath != null &&
+                    _selectedSection != null; }
         }
 
         public bool IsSignedIn
@@ -162,7 +161,6 @@ namespace Kindle2OneNote
                 RaisePropertyChangedEvent("SelectedSection");
                 if (_selectedSection != null)
                 {
-                    _selectedSectionId = _selectedSection.Id;
                     ApplicationData.Current.LocalSettings.Values[sectionKey] = _selectedSection.Id;
                 }
             }
@@ -193,7 +191,6 @@ namespace Kindle2OneNote
                 await Account.SignOut();
                 FileManager.Instance.Reset();
                 _backupFolderPath = null;
-                _selectedSectionId = null;
                 _notebooks?.Clear();
                 _sections?.Clear();
                 _selectedBook = null;
@@ -270,7 +267,7 @@ namespace Kindle2OneNote
         
         private void MarkSelectedNotebookAndSection(List<Notebook> notebooks)
         {
-            if (_selectedSectionId == null || !notebooks.Any())
+            if (_selectedSection == null || !notebooks.Any())
             {
                 return;
             }
@@ -279,7 +276,7 @@ namespace Kindle2OneNote
             {
                 foreach (Section section in book.Sections)
                 {
-                    if (section.Id == _selectedSectionId)
+                    if (section.Id == _selectedSection.Id)
                     {
                         section.Selected = true;
                         book.Selected = true;
@@ -297,7 +294,7 @@ namespace Kindle2OneNote
             IsUploadingClippings = true;
             string fileContent = await FileManager.Instance.ReadFileContent(file);
             List<BookWithClippings> books = ClippingParser.Instance.Parse(fileContent);
-            bool success = await OneNote.Instance.UploadClippingsToSection(books, _selectedSectionId);
+            bool success = await OneNote.Instance.UploadClippingsToSection(books, _selectedSection.Id);
             if (await FileManager.Instance.BackupFile(file))
             {
                 FileManager.Instance.DeleteFile(file);
