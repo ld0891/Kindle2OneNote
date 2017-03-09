@@ -15,21 +15,18 @@ namespace Kindle2OneNote
 
         public string Id { get; set; }
         public string Name { get; set; }
-        public bool Selected { get; set; }
         public Notebook parent { get; set; }
 
         public Section()
         {
             Id = "";
             Name = "";
-            Selected = false;
         }
 
         public Section(string id, string name)
         {
             Id = id;
             Name = name;
-            Selected = false;
         }
 
         public Section(string jsonString) : this()

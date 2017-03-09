@@ -132,7 +132,7 @@ namespace Kindle2OneNote
 
                 foreach (Section section in Sections)
                 {
-                    if (section.Selected)
+                    if (section.Id == SelectedSection?.Id)
                     {
                         SelectedSection = section;
                         return;
@@ -252,20 +252,11 @@ namespace Kindle2OneNote
                 return;
             }
 
-            MarkSelectedNotebookAndSection(notebooks);
             Notebooks = notebooks;
-            foreach (Notebook book in Notebooks)
-            {
-                if (book.Selected)
-                {
-                    SelectedBook = book;
-                    return;
-                }
-            }
-            SelectedBook = Notebooks.First();
+            DisplaySelectedNotebookAndSection(notebooks);
         }
         
-        private void MarkSelectedNotebookAndSection(List<Notebook> notebooks)
+        private void DisplaySelectedNotebookAndSection(List<Notebook> notebooks)
         {
             if (_selectedSection == null || !notebooks.Any())
             {
@@ -278,12 +269,13 @@ namespace Kindle2OneNote
                 {
                     if (section.Id == _selectedSection.Id)
                     {
-                        section.Selected = true;
-                        book.Selected = true;
+                        SelectedSection = section;
+                        SelectedBook = book;
                         return;
                     }
                 }
             }
+            SelectedBook = notebooks.First();
         }
 
         private async void SendClippingsToOneNote(StorageFile file)

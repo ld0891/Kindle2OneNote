@@ -14,14 +14,12 @@ namespace Kindle2OneNote
         
         public string Id { get; set; }
         public string Name { get; set; }
-        public bool Selected { get; set; }
         public List<Section> Sections { get; set; }
 
         public Notebook()
         {
             Id = "";
             Name = "";
-            Selected = false;
             Sections = new List<Section>();
         }
 
