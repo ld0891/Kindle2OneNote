@@ -145,7 +145,7 @@
     <value>选择剪贴文件</value>
   </data>
   <data name="SelectFolderButton.Content" xml:space="preserve">
-    <value>选择文件夹</value>
+    <value>浏览</value>
   </data>
   <data name="SignedIn" xml:space="preserve">
     <value>已登录</value>

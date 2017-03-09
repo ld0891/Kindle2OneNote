@@ -145,7 +145,7 @@
     <value>Select Clipping File</value>
   </data>
   <data name="SelectFolderButton.Content" xml:space="preserve">
-    <value>Select Folder</value>
+    <value>Browse</value>
   </data>
   <data name="SignedIn" xml:space="preserve">
     <value>Signed In</value>
