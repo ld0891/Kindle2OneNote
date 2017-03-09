@@ -176,6 +176,7 @@ namespace Kindle2OneNote
             IsSignedIn = success;
             if (!success)
             {
+                IsLoadingMetainfo = false;
                 var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
                 string str = loader.GetString("SignInFailure");
                 Notification.Instance.ShowError(str);
