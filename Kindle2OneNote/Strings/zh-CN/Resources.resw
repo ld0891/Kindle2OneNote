@@ -177,4 +177,7 @@
   <data name="NotReady" xml:space="preserve">
     <value>配置不全，还不能上传剪贴。</value>
   </data>
+  <data name="ClipMeta" xml:space="preserve">
+    <value>第 {0} 页, 位置 {1}-{2}, {3}</value>
+  </data>
 </root>

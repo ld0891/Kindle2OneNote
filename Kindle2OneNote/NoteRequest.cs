@@ -60,6 +60,8 @@ namespace Kindle2OneNote
                 return null;
             }
 
+            var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+            string metaFormat = loader.GetString("ClipMeta");
             StringBuilder str = new StringBuilder();
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Encoding = Encoding.UTF8;
@@ -70,7 +72,7 @@ namespace Kindle2OneNote
                 string meta = "";
                 foreach (Clipping clip in clippings)
                 {
-                    meta = String.Format(@"Page {0}, Location {1}-{2}, {3}", clip.Page, clip.LocationFrom, clip.LocationTo, clip.AddTime.ToString("F"));
+                    meta = String.Format(metaFormat, clip.Page, clip.LocationFrom, clip.LocationTo, clip.AddTime.ToString("F"));
                     xml.WriteStartElement("p");
                     xml.WriteAttributeString(styleKey, metaStyle);
                     xml.WriteString(meta);
